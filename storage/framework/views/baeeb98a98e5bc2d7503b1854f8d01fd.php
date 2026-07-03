@@ -115,8 +115,8 @@
                     <div class="card border-0 shadow-sm p-4 bg-white mb-4 text-center">
                         <h5 class="fw-bold mb-3 text-dark">QR Code Status</h5>
                         <?php if($reservation->qrCode): ?>
-                            <div class="d-inline-block p-3 border rounded-3 bg-light mb-4 shadow-sm">
-                                <img src="<?php echo e(asset('storage/' . $reservation->qrCode->qr_image_path)); ?>" alt="Order QR Code" class="img-fluid" style="max-width: 200px;">
+                            <div class="d-inline-block p-3 border rounded-3 bg-white mb-4 shadow-sm">
+                                <img src="<?php echo e(asset($reservation->qrCode->qr_image_path)); ?>" alt="Order QR Code" class="img-fluid" style="max-width: 200px;">
                             </div>
                             <div class="mb-4">
                                 <span class="badge <?php echo e($reservation->qrCode->is_used ? 'bg-danger' : 'bg-success'); ?> py-2 px-3">
