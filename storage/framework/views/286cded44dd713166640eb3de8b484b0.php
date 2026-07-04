@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
     /* Flying Food Animations */
     .flying-food {
@@ -61,7 +59,7 @@
     /* Impact Section Parallax */
     .impact-section {
         position: relative;
-        background: url('{{ asset("assets/images/impact_bg.png") }}') center center fixed;
+        background: url('<?php echo e(asset("assets/images/impact_bg.png")); ?>') center center fixed;
         background-size: cover;
         overflow: hidden;
     }
@@ -85,15 +83,15 @@
         margin-bottom: 0.5rem;
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
 
-@section('title', 'Home')
-@section('meta_description', 'Discover discounted surplus food from hotels, restaurants, bakeries & cafes in Trincomalee. Save money, reduce food waste.')
+<?php $__env->startSection('title', 'Home'); ?>
+<?php $__env->startSection('meta_description', 'Discover discounted surplus food from hotels, restaurants, bakeries & cafes in Trincomalee. Save money, reduce food waste.'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
-{{-- ─── HERO SECTION ─────────────────────────────────────── --}}
+
 <section class="hero-section">
     <div class="hero-bg-shapes"></div>
     <div class="container py-5">
@@ -111,18 +109,18 @@
                     Discover deeply discounted surplus food from top hotels, restaurants, bakeries and supermarkets in Trincomalee — AI-powered, QR-verified, community-driven.
                 </p>
                 <div class="d-flex flex-wrap gap-3">
-                    <a href="{{ route('food.browse') }}" class="btn btn-success btn-hero px-4">
+                    <a href="<?php echo e(route('food.browse')); ?>" class="btn btn-success btn-hero px-4">
                         <i class="fa fa-search me-2"></i>Browse Deals
                     </a>
-                    <a href="{{ route('map') }}" class="btn btn-outline-light btn-hero px-4">
+                    <a href="<?php echo e(route('map')); ?>" class="btn btn-outline-light btn-hero px-4">
                         <i class="fa fa-map-location-dot me-2"></i>Live Map
                     </a>
-                    <a href="{{ route('register') }}" class="btn btn-link btn-hero px-4 text-white text-decoration-none">
+                    <a href="<?php echo e(route('register')); ?>" class="btn btn-link btn-hero px-4 text-white text-decoration-none">
                         <i class="fa fa-user-plus me-2"></i>Get Started
                     </a>
                 </div>
 
-                {{-- Stat Badges --}}
+                
                 <div class="d-flex flex-wrap gap-4 mt-5">
                     <div class="stat-badge">
                         <div class="stat-number counter" data-target="1240">0</div>
@@ -141,9 +139,9 @@
 
             <div class="col-lg-6 mt-5 mt-lg-0" data-aos="fade-left">
                 <div class="hero-card-stack">
-                    {{-- Live deal preview cards --}}
+                    
                     <div class="deal-preview-card card-1">
-                        <img src="{{ asset('assets/images/biryani.png') }}" alt="Biryani" class="deal-img-photo">
+                        <img src="<?php echo e(asset('assets/images/biryani.png')); ?>" alt="Biryani" class="deal-img-photo">
                         <div>
                             <div class="fw-semibold">Fish Biryani</div>
                             <div class="d-flex align-items-center gap-2">
@@ -155,7 +153,7 @@
                         </div>
                     </div>
                     <div class="deal-preview-card card-2">
-                        <img src="{{ asset('assets/images/pastries.png') }}" alt="Pastries" class="deal-img-photo">
+                        <img src="<?php echo e(asset('assets/images/pastries.png')); ?>" alt="Pastries" class="deal-img-photo">
                         <div>
                             <div class="fw-semibold">Assorted Pastries</div>
                             <div class="d-flex align-items-center gap-2">
@@ -167,7 +165,7 @@
                         </div>
                     </div>
                     <div class="deal-preview-card card-3">
-                        <img src="{{ asset('assets/images/cake.png') }}" alt="Cake" class="deal-img-photo">
+                        <img src="<?php echo e(asset('assets/images/cake.png')); ?>" alt="Cake" class="deal-img-photo">
                         <div>
                             <div class="fw-semibold">Chocolate Cake Slice</div>
                             <div class="d-flex align-items-center gap-2">
@@ -184,13 +182,13 @@
     </div>
 </section>
 
-{{-- ─── CATEGORY GRID ───────────────────────────────────── --}}
+
 <section class="py-5 bg-white position-relative overflow-hidden">
     <!-- Flying Food Elements -->
-    <div class="flying-food slow" style="top: 15%; left: 5%; animation-delay: 0s; opacity: 0.6;"><img src="{{ asset('assets/images/burger.png') }}" alt="Burger"></div>
-    <div class="flying-food fast" style="top: 65%; left: 15%; animation-delay: -3s; opacity: 0.6;"><img src="{{ asset('assets/images/cake.png') }}" alt="Cake"></div>
-    <div class="flying-food" style="top: 25%; right: 10%; animation-delay: -5s; opacity: 0.5;"><img src="{{ asset('assets/images/biryani.png') }}" alt="Biryani"></div>
-    <div class="flying-food slow" style="top: 75%; right: 20%; animation-delay: -2s; opacity: 0.7;"><img src="{{ asset('assets/images/pastries.png') }}" alt="Pastries"></div>
+    <div class="flying-food slow" style="top: 15%; left: 5%; animation-delay: 0s; opacity: 0.6;"><img src="<?php echo e(asset('assets/images/burger.png')); ?>" alt="Burger"></div>
+    <div class="flying-food fast" style="top: 65%; left: 15%; animation-delay: -3s; opacity: 0.6;"><img src="<?php echo e(asset('assets/images/cake.png')); ?>" alt="Cake"></div>
+    <div class="flying-food" style="top: 25%; right: 10%; animation-delay: -5s; opacity: 0.5;"><img src="<?php echo e(asset('assets/images/biryani.png')); ?>" alt="Biryani"></div>
+    <div class="flying-food slow" style="top: 75%; right: 20%; animation-delay: -2s; opacity: 0.7;"><img src="<?php echo e(asset('assets/images/pastries.png')); ?>" alt="Pastries"></div>
     
     <div class="container position-relative" style="z-index: 1;">
         <div class="section-header text-center mb-5">
@@ -198,20 +196,20 @@
             <h2 class="section-title">Browse by Category</h2>
         </div>
         <div class="row g-3 justify-content-center">
-            @foreach($categories as $cat)
+            <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="col-6 col-sm-4 col-md-3 col-lg-auto">
-                <a href="{{ route('food.browse', ['category' => $cat->slug]) }}" class="category-card">
-                    <div class="category-icon"><i class="fa {{ $cat->icon }}"></i></div>
-                    <div class="category-name">{{ $cat->name }}</div>
-                    <div class="category-count text-muted small">{{ $cat->foods()->active()->count() }} deals</div>
+                <a href="<?php echo e(route('food.browse', ['category' => $cat->slug])); ?>" class="category-card">
+                    <div class="category-icon"><i class="fa <?php echo e($cat->icon); ?>"></i></div>
+                    <div class="category-name"><?php echo e($cat->name); ?></div>
+                    <div class="category-count text-muted small"><?php echo e($cat->foods()->active()->count()); ?> deals</div>
                 </a>
             </div>
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
     </div>
 </section>
 
-{{-- ─── FEATURED FOOD DEALS ─────────────────────────────── --}}
+
 <section class="py-5 section-bg-alt">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -219,35 +217,35 @@
                 <span class="section-badge">🔥 Hot Deals</span>
                 <h2 class="section-title mt-1">Expiring Soon — Act Fast!</h2>
             </div>
-            <a href="{{ route('food.browse') }}" class="btn btn-outline-success">View All</a>
+            <a href="<?php echo e(route('food.browse')); ?>" class="btn btn-outline-success">View All</a>
         </div>
 
         <div class="row g-4">
-            @foreach($expiringSoonFoods as $food)
+            <?php $__currentLoopData = $expiringSoonFoods; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $food): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="col-sm-6 col-lg-3">
-                @include('partials.food-card', ['food' => $food])
+                <?php echo $__env->make('partials.food-card', ['food' => $food], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
             </div>
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-            @if($expiringSoonFoods->isEmpty())
+            <?php if($expiringSoonFoods->isEmpty()): ?>
             <div class="col-12 text-center py-5">
                 <div class="text-muted">
                     <i class="fa fa-leaf fa-3x mb-3 text-primary"></i>
                     <p>No deals expiring soon. Check back later!</p>
                 </div>
             </div>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
 </section>
 
-{{-- ─── HOW IT WORKS ────────────────────────────────────── --}}
+
 <section class="py-5 bg-white position-relative overflow-hidden">
     <!-- Flying Food Elements -->
-    <div class="flying-food fast" style="top: 20%; left: 8%; animation-delay: -1s; opacity: 0.6;"><img src="{{ asset('assets/images/pastries.png') }}" alt="Pastries"></div>
-    <div class="flying-food slow" style="top: 70%; left: 20%; animation-delay: -4s; opacity: 0.5;"><img src="{{ asset('assets/images/biryani.png') }}" alt="Biryani"></div>
-    <div class="flying-food" style="top: 15%; right: 15%; animation-delay: -2s; opacity: 0.7;"><img src="{{ asset('assets/images/burger.png') }}" alt="Burger"></div>
-    <div class="flying-food fast" style="top: 75%; right: 5%; animation-delay: -6s; opacity: 0.6;"><img src="{{ asset('assets/images/cake.png') }}" alt="Cake"></div>
+    <div class="flying-food fast" style="top: 20%; left: 8%; animation-delay: -1s; opacity: 0.6;"><img src="<?php echo e(asset('assets/images/pastries.png')); ?>" alt="Pastries"></div>
+    <div class="flying-food slow" style="top: 70%; left: 20%; animation-delay: -4s; opacity: 0.5;"><img src="<?php echo e(asset('assets/images/biryani.png')); ?>" alt="Biryani"></div>
+    <div class="flying-food" style="top: 15%; right: 15%; animation-delay: -2s; opacity: 0.7;"><img src="<?php echo e(asset('assets/images/burger.png')); ?>" alt="Burger"></div>
+    <div class="flying-food fast" style="top: 75%; right: 5%; animation-delay: -6s; opacity: 0.6;"><img src="<?php echo e(asset('assets/images/cake.png')); ?>" alt="Cake"></div>
 
     <div class="container position-relative" style="z-index: 1;">
         <div class="section-header text-center mb-5">
@@ -283,7 +281,7 @@
     </div>
 </section>
 
-{{-- ─── FEATURED BUSINESSES ─────────────────────────────── --}}
+
 <section class="py-5 section-bg-alt">
     <div class="container">
         <div class="section-header text-center mb-5">
@@ -291,36 +289,37 @@
             <h2 class="section-title">Featured Businesses</h2>
         </div>
         <div class="row g-4">
-            @foreach($featuredBusinesses as $biz)
+            <?php $__currentLoopData = $featuredBusinesses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $biz): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="col-sm-6 col-lg-4">
                 <div class="business-card">
                     <div class="biz-banner" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark))">
-                        <div class="biz-type-badge">{{ ucfirst($biz->business_type) }}</div>
+                        <div class="biz-type-badge"><?php echo e(ucfirst($biz->business_type)); ?></div>
                         <div class="featured-badge-star">⭐ Featured</div>
                     </div>
                     <div class="biz-body">
                         <div class="d-flex align-items-center gap-2 mb-2">
-                            @if($biz->logo)
-                                <img src="{{ asset('storage/' . $biz->logo) }}" alt="{{ $biz->business_name }}" class="rounded-circle border border-2 border-success" style="width: 40px; height: 40px; object-fit: cover; flex-shrink: 0;">
-                            @else
+                            <?php if($biz->logo): ?>
+                                <img src="<?php echo e(asset('storage/' . $biz->logo)); ?>" alt="<?php echo e($biz->business_name); ?>" class="rounded-circle border border-2 border-success" style="width: 40px; height: 40px; object-fit: cover; flex-shrink: 0;">
+                            <?php else: ?>
                                 <div class="d-flex align-items-center justify-content-center rounded-circle border border-2 border-success fw-bold text-white" style="width: 40px; height: 40px; background: var(--primary); font-size: 1rem; flex-shrink: 0;">
-                                    {{ strtoupper(substr($biz->business_name, 0, 1)) }}
+                                    <?php echo e(strtoupper(substr($biz->business_name, 0, 1))); ?>
+
                                 </div>
-                            @endif
-                            <h6 class="fw-bold mb-0">{{ $biz->business_name }}</h6>
+                            <?php endif; ?>
+                            <h6 class="fw-bold mb-0"><?php echo e($biz->business_name); ?></h6>
                         </div>
-                        <p class="text-muted small mb-2"><i class="fa fa-map-pin me-1 text-primary"></i>{{ Str::limit($biz->address, 45) }}</p>
-                        <p class="text-muted small mb-3">{{ $biz->foods()->active()->count() }} active deals</p>
-                        <a href="{{ route('food.browse', ['business' => $biz->id]) }}" class="btn btn-success btn-sm w-100">View Deals</a>
+                        <p class="text-muted small mb-2"><i class="fa fa-map-pin me-1 text-primary"></i><?php echo e(Str::limit($biz->address, 45)); ?></p>
+                        <p class="text-muted small mb-3"><?php echo e($biz->foods()->active()->count()); ?> active deals</p>
+                        <a href="<?php echo e(route('food.browse', ['business' => $biz->id])); ?>" class="btn btn-success btn-sm w-100">View Deals</a>
                     </div>
                 </div>
             </div>
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
     </div>
 </section>
 
-{{-- ─── AI IMPACT COUNTER ───────────────────────────────── --}}
+
 <section class="impact-section py-5">
     <div class="container text-center text-white py-3">
         <h2 class="fw-bold mb-2 text-white">Our Impact in Trincomalee</h2>
@@ -346,7 +345,7 @@
     </div>
 </section>
 
-{{-- ─── SUBSCRIPTION CTA ────────────────────────────────── --}}
+
 <section class="py-5 bg-white">
     <div class="container">
         <div class="cta-card text-center p-5">
@@ -363,22 +362,22 @@
                     <div class="plan-pill">Enterprise — Rs.10,000/mo</div>
                 </div>
             </div>
-            @if(auth()->check() && auth()->user()->isBusinessOwner())
-                <a href="{{ route('business.subscription') }}" class="btn btn-success btn-lg px-5">
+            <?php if(auth()->check() && auth()->user()->isBusinessOwner()): ?>
+                <a href="<?php echo e(route('business.subscription')); ?>" class="btn btn-success btn-lg px-5">
                     <i class="fa fa-credit-card me-2"></i>View Subscription Plans
                 </a>
-            @else
-                <a href="{{ route('register.business') }}" class="btn btn-success btn-lg px-5">
+            <?php else: ?>
+                <a href="<?php echo e(route('register.business')); ?>" class="btn btn-success btn-lg px-5">
                     <i class="fa fa-rocket me-2"></i>Start Free Registration
                 </a>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
 </section>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 // Counter animation
 document.querySelectorAll('.counter').forEach(el => {
@@ -397,4 +396,5 @@ document.querySelectorAll('.counter').forEach(el => {
     observer.observe(el);
 });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\projectn_dark\resources\views/public/home.blade.php ENDPATH**/ ?>

@@ -86,7 +86,8 @@ a:hover { color: var(--primary-light); }
 .fr-navbar .nav-link:hover, .fr-navbar .nav-link.active { color: #fff; background: rgba(255, 255, 255, 0.05); }
 .user-avatar-sm { 
     width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: #fff; 
-    display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; 
+    display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700;
+    overflow: hidden; flex-shrink: 0;
 }
 .notification-dropdown { min-width: 320px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 0.5rem; }
 .notification-dropdown .dropdown-header { color: var(--text-muted) !important; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.5rem 1rem; }

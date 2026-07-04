@@ -97,7 +97,11 @@
                     <!-- User menu -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
-                            <div class="user-avatar-sm"><?php echo e(strtoupper(substr(auth()->user()->name, 0, 1))); ?></div>
+                            <?php if(auth()->user()->avatar): ?>
+                                <img src="<?php echo e(asset('storage/' . auth()->user()->avatar)); ?>" alt="<?php echo e(auth()->user()->name); ?>" class="user-avatar-sm" style="object-fit: cover;">
+                            <?php else: ?>
+                                <div class="user-avatar-sm"><?php echo e(strtoupper(substr(auth()->user()->name, 0, 1))); ?></div>
+                            <?php endif; ?>
                             <span class="d-none d-md-inline"><?php echo e(auth()->user()->name); ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow">

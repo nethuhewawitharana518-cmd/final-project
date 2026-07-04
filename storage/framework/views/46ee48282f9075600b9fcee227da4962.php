@@ -1,10 +1,8 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'My Profile'); ?>
 
-@section('title', 'My Profile')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="d-flex">
-    @include('customer.sidebar')
+    <?php echo $__env->make('customer.sidebar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
     <div class="main-content flex-grow-1">
         <div class="page-header">
@@ -14,47 +12,48 @@
 
         <div class="content-area">
             <div class="row g-4">
-                {{-- Profile Info Card --}}
+                
                 <div class="col-lg-6">
                     <div class="card border-0 shadow-sm rounded-3 p-4 bg-white">
                         <h5 class="fw-bold text-dark mb-4">Profile Information</h5>
-                        <form action="{{ route('customer.profile.update') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            @method('PUT')
+                        <form action="<?php echo e(route('customer.profile.update')); ?>" method="POST" enctype="multipart/form-data">
+                            <?php echo csrf_field(); ?>
+                            <?php echo method_field('PUT'); ?>
 
                             <div class="mb-3">
                                 <label for="name" class="form-label">Full Name</label>
-                                <input type="text" class="form-control" id="name" name="name" value="{{ old('name', auth()->user()->name) }}" required>
+                                <input type="text" class="form-control" id="name" name="name" value="<?php echo e(old('name', auth()->user()->name)); ?>" required>
                                 <div class="text-danger small mt-1 d-none" id="name-warning">⚠️ Please enter letters and spaces only. Numbers or special characters are not allowed.</div>
                             </div>
 
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email Address</label>
-                                <input type="email" class="form-control" id="email" value="{{ auth()->user()->email }}" disabled>
+                                <input type="email" class="form-control" id="email" value="<?php echo e(auth()->user()->email); ?>" disabled>
                                 <span class="text-muted small">Email cannot be changed.</span>
                             </div>
 
                             <div class="mb-3">
                                 <label for="phone" class="form-label">Phone Number</label>
-                                <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone', auth()->user()->phone) }}" maxlength="10" placeholder="e.g., 0771234567" required>
+                                <input type="text" class="form-control" id="phone" name="phone" value="<?php echo e(old('phone', auth()->user()->phone)); ?>" maxlength="10" placeholder="e.g., 0771234567" required>
                                 <div class="text-danger small mt-1 d-none" id="phone-warning">⚠️ Please enter exactly 10 digits starting with 07 (e.g., 0771234567). Only numbers are allowed.</div>
                             </div>
 
                             <div class="mb-3">
                                 <label for="home_address" class="form-label">Home Address</label>
-                                <textarea class="form-control" id="home_address" name="home_address" rows="2" required>{{ old('home_address', auth()->user()->home_address) }}</textarea>
+                                <textarea class="form-control" id="home_address" name="home_address" rows="2" required><?php echo e(old('home_address', auth()->user()->home_address)); ?></textarea>
                             </div>
 
                             <div class="mb-4">
                                 <label for="avatar" class="form-label">Profile Picture</label>
                                 <div class="d-flex align-items-center gap-3 mb-2">
-                                    @if(auth()->user()->avatar)
-                                        <img src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Profile" class="rounded-circle border border-2 border-success" style="width: 64px; height: 64px; object-fit: cover;">
-                                    @else
+                                    <?php if(auth()->user()->avatar): ?>
+                                        <img src="<?php echo e(asset('storage/' . auth()->user()->avatar)); ?>" alt="Profile" class="rounded-circle border border-2 border-success" style="width: 64px; height: 64px; object-fit: cover;">
+                                    <?php else: ?>
                                         <div class="d-flex align-items-center justify-content-center rounded-circle border border-2 border-success fw-bold text-white" style="width: 64px; height: 64px; background: var(--primary, #10b981); font-size: 1.5rem;">
-                                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                            <?php echo e(strtoupper(substr(auth()->user()->name, 0, 1))); ?>
+
                                         </div>
-                                    @endif
+                                    <?php endif; ?>
                                     <div class="flex-grow-1">
                                         <input type="file" class="form-control" id="avatar" name="avatar" accept="image/jpeg,image/png">
                                         <div class="form-text small text-muted">JPG or PNG. Max 2MB.</div>
@@ -67,13 +66,13 @@
                     </div>
                 </div>
 
-                {{-- Password Update Card --}}
+                
                 <div class="col-lg-6">
                     <div class="card border-0 shadow-sm rounded-3 p-4 bg-white">
                         <h5 class="fw-bold text-dark mb-4">Change Password</h5>
-                        <form action="{{ route('customer.profile.password') }}" method="POST">
-                            @csrf
-                            @method('PUT')
+                        <form action="<?php echo e(route('customer.profile.password')); ?>" method="POST">
+                            <?php echo csrf_field(); ?>
+                            <?php echo method_field('PUT'); ?>
 
                             <div class="mb-3">
                                 <label for="current_password" class="form-label">Current Password</label>
@@ -98,9 +97,9 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const nameInput = document.getElementById('name');
@@ -155,4 +154,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\projectn_dark\resources\views/customer/profile.blade.php ENDPATH**/ ?>

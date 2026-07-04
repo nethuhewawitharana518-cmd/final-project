@@ -151,13 +151,24 @@
             <div class="col-lg-6">
                 <h4 class="fw-bold text-dark mb-4">About the Vendor</h4>
                 <div class="card border-0 shadow-sm p-4 bg-light h-100 rounded-3">
-                    <h5 class="fw-semibold text-success mb-2">{{ $food->business->business_name }}</h5>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        @if($food->business->logo)
+                            <img src="{{ asset('storage/' . $food->business->logo) }}" alt="{{ $food->business->business_name }}" class="rounded-circle border border-2 border-success" style="width: 56px; height: 56px; object-fit: cover;">
+                        @else
+                            <div class="d-flex align-items-center justify-content-center rounded-circle border border-2 border-success fw-bold text-white" style="width: 56px; height: 56px; background: var(--primary); font-size: 1.4rem;">
+                                {{ strtoupper(substr($food->business->business_name, 0, 1)) }}
+                            </div>
+                        @endif
+                        <div>
+                            <h5 class="fw-semibold text-success mb-0">{{ $food->business->business_name }}</h5>
+                            <span class="badge bg-success-subtle text-success text-capitalize small mt-1"><i class="fa fa-store me-1"></i>{{ $food->business->business_type }}</span>
+                        </div>
+                    </div>
                     <p class="text-muted small mb-3"><i class="fa fa-map-marker-alt text-success me-2"></i>{{ $food->business->address }}</p>
                     <p class="text-muted small mb-4">
                         {{ $food->business->description ?: 'This business is a proud rescue partner committed to reducing food waste and serving the Trincomalee community.' }}
                     </p>
                     <div class="d-flex align-items-center gap-3">
-                        <span class="badge bg-success-subtle text-success py-2 px-3 rounded text-capitalize"><i class="fa fa-store me-1"></i>{{ $food->business->business_type }}</span>
                         <span class="text-muted small"><i class="fa fa-phone me-1"></i>{{ $food->business->phone }}</span>
                     </div>
                 </div>
