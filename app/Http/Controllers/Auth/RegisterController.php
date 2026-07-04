@@ -199,20 +199,8 @@ class RegisterController extends Controller
             'email'           => $request->email,
             'logo'            => $logoPath,
             'documents'       => $documents,
-            'status'          => 'approved', // Approved by default
-            'reg_fee_paid'    => true, // Simulation of registration fee
-            'reg_fee_paid_at' => now(),
-        ]);
-
-        // Create Default Active Subscription for the Business Owner
-        \App\Models\Subscription::create([
-            'business_id'  => $business->id,
-            'plan_type'    => 'professional',
-            'price'        => 5000.0,
-            'upload_limit' => 100,
-            'start_date'   => now(),
-            'end_date'     => now()->addMonths(12),
-            'status'       => 'active',
+            'status'          => 'pending',
+            'reg_fee_paid'    => false,
         ]);
 
         Auth::login($user);

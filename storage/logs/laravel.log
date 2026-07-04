@@ -9380,3 +9380,6 @@
 "} 
 [2026-07-03 14:08:04] local.ERROR: Stripe createPaymentIntent failed {"message":"Invalid API Key provided: sk_test_**********************************************************************************************7pCh","code":null} 
 [2026-07-03 14:08:04] local.INFO: Stripe API failed or keys are invalid. Falling back to local mock payment intent.  
+[2026-07-03 20:44:58] local.WARNING: AI Service unavailable: cURL error 7: Failed to connect to 127.0.0.1 port 5000 after 2022 ms: Couldn't connect to server (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for http://127.0.0.1:5000/ai/expiry-risk  
+[2026-07-03 20:45:00] local.WARNING: AI Service unavailable: cURL error 7: Failed to connect to 127.0.0.1 port 5000 after 2037 ms: Couldn't connect to server (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for http://127.0.0.1:5000/ai/discount-recommend  
+[2026-07-03 22:12:25] local.INFO: Delivery fee calculated {"user_id":5,"distance_km":0.0,"fee":100.0,"zone":"dynamic","cart_total":2400.0} 
