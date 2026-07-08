@@ -33,6 +33,7 @@ class Reservation extends Model
     public function payment()    { return $this->hasOne(Payment::class); }
     public function qrCode()     { return $this->hasOne(QrCode::class); }
     public function commission() { return $this->hasOne(Commission::class); }
+    public function review()     { return $this->hasOne(Review::class); }
 
     // ─── Status Helpers ───────────────────────────────────────────────
     public function isPaid(): bool      { return $this->status === 'paid'; }

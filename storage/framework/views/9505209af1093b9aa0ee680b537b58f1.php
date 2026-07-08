@@ -64,7 +64,55 @@
                                                     <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
                                                 </form>
                                             <?php endif; ?>
+                                            
+                                            <?php if($order->status === 'collected'): ?>
+                                                <?php if($order->review): ?>
+                                                    <button class="btn btn-sm btn-outline-secondary px-3" disabled>Reviewed</button>
+                                                <?php else: ?>
+                                                    <button type="button" class="btn btn-sm btn-warning px-3" data-bs-toggle="modal" data-bs-target="#reviewModal-<?php echo e($order->id); ?>">
+                                                        Review
+                                                    </button>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
                                         </div>
+
+                                        <?php if($order->status === 'collected' && !$order->review): ?>
+                                            <!-- Review Modal -->
+                                            <div class="modal fade text-start" id="reviewModal-<?php echo e($order->id); ?>" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content text-white" style="background-color: var(--bg-surface); border-color: var(--border-color);">
+                                                        <div class="modal-header border-bottom border-secondary">
+                                                            <h5 class="modal-title text-dark">Review <?php echo e($order->business->business_name); ?></h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <form action="<?php echo e(route('customer.reviews.store')); ?>" method="POST">
+                                                            <?php echo csrf_field(); ?>
+                                                            <input type="hidden" name="reservation_id" value="<?php echo e($order->id); ?>">
+                                                            <div class="modal-body text-dark">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Rating</label>
+                                                                    <select name="rating" class="form-select" required>
+                                                                        <option value="5">⭐⭐⭐⭐⭐ (5 - Excellent)</option>
+                                                                        <option value="4">⭐⭐⭐⭐ (4 - Good)</option>
+                                                                        <option value="3">⭐⭐⭐ (3 - Average)</option>
+                                                                        <option value="2">⭐⭐ (2 - Poor)</option>
+                                                                        <option value="1">⭐ (1 - Terrible)</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Comment (Optional)</label>
+                                                                    <textarea name="comment" class="form-control" rows="3" placeholder="Tell everyone how was your experience?"></textarea>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer border-top border-secondary">
+                                                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                <button type="submit" class="btn btn-warning">Submit Review</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>

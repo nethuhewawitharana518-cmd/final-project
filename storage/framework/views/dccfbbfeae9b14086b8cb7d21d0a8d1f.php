@@ -6,8 +6,8 @@
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="<?php echo e(route('home')); ?>" class="text-primary fw-semibold text-decoration-none">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Browse Deals</li>
+                <li class="breadcrumb-item"><a href="<?php echo e(route('home')); ?>" class="text-white-50 text-decoration-none hover-primary">Home</a></li>
+                <li class="breadcrumb-item text-primary fw-semibold" aria-current="page">Browse Deals</li>
             </ol>
         </nav>
     </div>

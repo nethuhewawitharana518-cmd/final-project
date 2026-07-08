@@ -50,7 +50,13 @@
                                         <p class="text-muted small mb-0"><strong>Address:</strong> {{ $deliveryAddress }}</p>
                                     @else
                                         <h6 class="fw-bold mb-1 text-white"><i class="fa-solid fa-store text-success me-2"></i>Self Pickup</h6>
-                                        <p class="text-muted small mb-0">Please pick up from the store address on the left.</p>
+                                        <p class="text-muted small mb-2">Please pick up from the store address on the left.</p>
+                                        @if($order->business->latitude && $order->business->longitude)
+                                            <a href="{{ route('customer.orders.pickup-map', $order->id) }}"
+                                               class="btn btn-success btn-sm rounded-pill px-3">
+                                                <i class="fa fa-route me-2"></i>Get Directions &amp; Route Map
+                                            </a>
+                                        @endif
                                     @endif
                                 </div>
                             </div>
@@ -355,7 +361,7 @@
 @endpush
 
 @push('scripts')
-<script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=geometry,places"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps_key') }}&libraries=geometry,places"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const isDelivery = {{ $isDelivery ? 'true' : 'false' }};

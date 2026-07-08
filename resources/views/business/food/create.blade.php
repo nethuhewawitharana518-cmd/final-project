@@ -20,6 +20,17 @@
                 <form action="{{ route('business.food.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <strong>Please fix the following before submitting:</strong>
+                            <ul class="mb-0 mt-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <!-- Template Selection Grid Section -->
                     <div class="mb-5">
                         <label class="form-label fw-bold text-dark d-block mb-3">
@@ -60,49 +71,58 @@
                     <div class="row g-3">
                         <div class="col-md-6 mb-3">
                             <label for="title" class="form-label fw-semibold">Food Title</label>
-                            <input type="text" name="title" id="title" class="form-control" placeholder="e.g., Fish Biryani, Chocolate Pastry" value="{{ old('title') }}" required>
+                            <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" placeholder="e.g., Fish Biryani, Chocolate Pastry" value="{{ old('title') }}" required>
+                            @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label for="category_id" class="form-label fw-semibold">Food Category</label>
-                            <select name="category_id" id="category_id" class="form-select" required>
+                            <select name="category_id" id="category_id" class="form-select @error('category_id') is-invalid @enderror" required>
                                 <option value="">Select Category</option>
                                 @foreach($categories as $cat)
                                     <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                                 @endforeach
                             </select>
+                            @error('category_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-4 mb-3">
                             <label for="original_price" class="form-label fw-semibold">Original Price (Rs.)</label>
-                            <input type="number" name="original_price" id="original_price" class="form-control" placeholder="Original price" value="{{ old('original_price') }}" required>
+                            <input type="number" name="original_price" id="original_price" class="form-control @error('original_price') is-invalid @enderror" placeholder="Original price" value="{{ old('original_price') }}" required>
+                            @error('original_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-4 mb-3">
                             <label for="discounted_price" class="form-label fw-semibold">Surplus Discounted Price (Rs.)</label>
-                            <input type="number" name="discounted_price" id="discounted_price" class="form-control" placeholder="Surplus rescue price" value="{{ old('discounted_price') }}" required>
+                            <input type="number" name="discounted_price" id="discounted_price" class="form-control @error('discounted_price') is-invalid @enderror" placeholder="Surplus rescue price" value="{{ old('discounted_price') }}" required>
+                            @error('discounted_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <small class="text-muted">Must be lower than the original price.</small>
                         </div>
 
                         <div class="col-md-4 mb-3">
                             <label for="quantity" class="form-label fw-semibold">Available Quantity</label>
-                            <input type="number" name="quantity" id="quantity" class="form-control" placeholder="Number of portions" value="{{ old('quantity') }}" required>
+                            <input type="number" name="quantity" id="quantity" class="form-control @error('quantity') is-invalid @enderror" placeholder="Number of portions" value="{{ old('quantity') }}" required>
+                            @error('quantity') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label for="expiry_time" class="form-label fw-semibold">Expiry Date & Time</label>
-                            <input type="datetime-local" name="expiry_time" id="expiry_time" class="form-control" value="{{ old('expiry_time') }}" required>
-                            <small class="text-muted">Set when the food items should be taken down or expire.</small>
+                            <input type="datetime-local" name="expiry_time" id="expiry_time" class="form-control @error('expiry_time') is-invalid @enderror" value="{{ old('expiry_time') }}" required>
+                            @error('expiry_time') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <small class="text-muted">Set when the food items should be taken down or expire. Must be in the future.</small>
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label for="image" class="form-label fw-semibold">Food Listing Image (Custom Upload)</label>
-                            <input type="file" name="image" id="image" class="form-control" accept="image/*">
+                            <input type="file" name="image" id="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
+                            @error('image') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             <small class="text-muted">Or upload your own custom photo. Selecting a template photo above will be cleared.</small>
                         </div>
 
                         <div class="col-12 mb-4">
                             <label for="description" class="form-label fw-semibold">Listing Description</label>
-                            <textarea name="description" id="description" rows="3" class="form-control" placeholder="Portion size, dietary ingredients, allergen advice...">{{ old('description') }}</textarea>
+                            <textarea name="description" id="description" rows="3" class="form-control @error('description') is-invalid @enderror" placeholder="Portion size, dietary ingredients, allergen advice...">{{ old('description') }}</textarea>
+                            @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                     </div>
 
@@ -115,6 +135,23 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Expiry time: give it a sensible minimum (10 mins from now) and default
+    // (3 hours from now), and re-check the minimum on load — datetime-local
+    // inputs don't do this by themselves, so a business owner could otherwise
+    // pick a time that looks fine but silently fails the backend's
+    // "must be after now" validation with no visible error.
+    const expiryInput = document.getElementById('expiry_time');
+    if (expiryInput && !expiryInput.value) {
+        function toLocalDatetimeValue(d) {
+            const pad = n => String(n).padStart(2, '0');
+            return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+                 + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+        }
+        const now = new Date();
+        expiryInput.min = toLocalDatetimeValue(new Date(now.getTime() + 10 * 60000));
+        expiryInput.value = toLocalDatetimeValue(new Date(now.getTime() + 3 * 60 * 60000));
+    }
+
     const templateCards = document.querySelectorAll('.template-card');
     const titleInput = document.getElementById('title');
     const categorySelect = document.getElementById('category_id');

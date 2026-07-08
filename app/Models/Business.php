@@ -94,4 +94,40 @@ class Business extends Model
             ->whereYear('created_at', now()->year)
             ->sum('business_earnings');
     }
+
+    // ─── Reviews & Badges ──────────────────────────────────────────────
+    public function reviews() { return $this->hasMany(Review::class); }
+
+    public function getAverageRatingAttribute(): float
+    {
+        return round((float) $this->reviews()->avg('rating'), 1);
+    }
+
+    public function getReviewCountAttribute(): int
+    {
+        return $this->reviews()->count();
+    }
+
+    public function getBadgeAttribute(): ?string
+    {
+        // Calculate Top 3 businesses based on average rating, then by review count to break ties
+        $topBusinesses = \Illuminate\Support\Facades\Cache::remember('top_3_businesses', 60, function () {
+            return self::withCount('reviews')
+                ->withAvg('reviews', 'rating')
+                ->having('reviews_count', '>', 0)
+                ->orderByDesc('reviews_avg_rating')
+                ->orderByDesc('reviews_count')
+                ->limit(3)
+                ->pluck('id')
+                ->toArray();
+        });
+
+        $rank = array_search($this->id, $topBusinesses);
+
+        if ($rank === 0) return '1st';
+        if ($rank === 1) return '2nd';
+        if ($rank === 2) return '3rd';
+
+        return null;
+    }
 }

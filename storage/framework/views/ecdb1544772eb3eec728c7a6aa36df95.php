@@ -18,6 +18,17 @@
                 <form action="<?php echo e(route('business.food.store')); ?>" method="POST" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
 
+                    <?php if($errors->any()): ?>
+                        <div class="alert alert-danger">
+                            <strong>Please fix the following before submitting:</strong>
+                            <ul class="mb-0 mt-1">
+                                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <li><?php echo e($error); ?></li>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
+
                     <!-- Template Selection Grid Section -->
                     <div class="mb-5">
                         <label class="form-label fw-bold text-dark d-block mb-3">
@@ -58,49 +69,170 @@
                     <div class="row g-3">
                         <div class="col-md-6 mb-3">
                             <label for="title" class="form-label fw-semibold">Food Title</label>
-                            <input type="text" name="title" id="title" class="form-control" placeholder="e.g., Fish Biryani, Chocolate Pastry" value="<?php echo e(old('title')); ?>" required>
+                            <input type="text" name="title" id="title" class="form-control <?php $__errorArgs = ['title'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" placeholder="e.g., Fish Biryani, Chocolate Pastry" value="<?php echo e(old('title')); ?>" required>
+                            <?php $__errorArgs = ['title'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <div class="invalid-feedback"><?php echo e($message); ?></div> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label for="category_id" class="form-label fw-semibold">Food Category</label>
-                            <select name="category_id" id="category_id" class="form-select" required>
+                            <select name="category_id" id="category_id" class="form-select <?php $__errorArgs = ['category_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" required>
                                 <option value="">Select Category</option>
                                 <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <option value="<?php echo e($cat->id); ?>" <?php echo e(old('category_id') == $cat->id ? 'selected' : ''); ?>><?php echo e($cat->name); ?></option>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
+                            <?php $__errorArgs = ['category_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <div class="invalid-feedback"><?php echo e($message); ?></div> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                         </div>
 
                         <div class="col-md-4 mb-3">
                             <label for="original_price" class="form-label fw-semibold">Original Price (Rs.)</label>
-                            <input type="number" name="original_price" id="original_price" class="form-control" placeholder="Original price" value="<?php echo e(old('original_price')); ?>" required>
+                            <input type="number" name="original_price" id="original_price" class="form-control <?php $__errorArgs = ['original_price'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" placeholder="Original price" value="<?php echo e(old('original_price')); ?>" required>
+                            <?php $__errorArgs = ['original_price'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <div class="invalid-feedback"><?php echo e($message); ?></div> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                         </div>
 
                         <div class="col-md-4 mb-3">
                             <label for="discounted_price" class="form-label fw-semibold">Surplus Discounted Price (Rs.)</label>
-                            <input type="number" name="discounted_price" id="discounted_price" class="form-control" placeholder="Surplus rescue price" value="<?php echo e(old('discounted_price')); ?>" required>
+                            <input type="number" name="discounted_price" id="discounted_price" class="form-control <?php $__errorArgs = ['discounted_price'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" placeholder="Surplus rescue price" value="<?php echo e(old('discounted_price')); ?>" required>
+                            <?php $__errorArgs = ['discounted_price'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <div class="invalid-feedback"><?php echo e($message); ?></div> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                            <small class="text-muted">Must be lower than the original price.</small>
                         </div>
 
                         <div class="col-md-4 mb-3">
                             <label for="quantity" class="form-label fw-semibold">Available Quantity</label>
-                            <input type="number" name="quantity" id="quantity" class="form-control" placeholder="Number of portions" value="<?php echo e(old('quantity')); ?>" required>
+                            <input type="number" name="quantity" id="quantity" class="form-control <?php $__errorArgs = ['quantity'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" placeholder="Number of portions" value="<?php echo e(old('quantity')); ?>" required>
+                            <?php $__errorArgs = ['quantity'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <div class="invalid-feedback"><?php echo e($message); ?></div> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label for="expiry_time" class="form-label fw-semibold">Expiry Date & Time</label>
-                            <input type="datetime-local" name="expiry_time" id="expiry_time" class="form-control" value="<?php echo e(old('expiry_time')); ?>" required>
-                            <small class="text-muted">Set when the food items should be taken down or expire.</small>
+                            <input type="datetime-local" name="expiry_time" id="expiry_time" class="form-control <?php $__errorArgs = ['expiry_time'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" value="<?php echo e(old('expiry_time')); ?>" required>
+                            <?php $__errorArgs = ['expiry_time'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <div class="invalid-feedback"><?php echo e($message); ?></div> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                            <small class="text-muted">Set when the food items should be taken down or expire. Must be in the future.</small>
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label for="image" class="form-label fw-semibold">Food Listing Image (Custom Upload)</label>
-                            <input type="file" name="image" id="image" class="form-control" accept="image/*">
+                            <input type="file" name="image" id="image" class="form-control <?php $__errorArgs = ['image'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" accept="image/*">
+                            <?php $__errorArgs = ['image'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <div class="invalid-feedback"><?php echo e($message); ?></div> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                             <small class="text-muted">Or upload your own custom photo. Selecting a template photo above will be cleared.</small>
                         </div>
 
                         <div class="col-12 mb-4">
                             <label for="description" class="form-label fw-semibold">Listing Description</label>
-                            <textarea name="description" id="description" rows="3" class="form-control" placeholder="Portion size, dietary ingredients, allergen advice..."><?php echo e(old('description')); ?></textarea>
+                            <textarea name="description" id="description" rows="3" class="form-control <?php $__errorArgs = ['description'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" placeholder="Portion size, dietary ingredients, allergen advice..."><?php echo e(old('description')); ?></textarea>
+                            <?php $__errorArgs = ['description'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <div class="invalid-feedback"><?php echo e($message); ?></div> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                         </div>
                     </div>
 
@@ -113,6 +245,23 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Expiry time: give it a sensible minimum (10 mins from now) and default
+    // (3 hours from now), and re-check the minimum on load — datetime-local
+    // inputs don't do this by themselves, so a business owner could otherwise
+    // pick a time that looks fine but silently fails the backend's
+    // "must be after now" validation with no visible error.
+    const expiryInput = document.getElementById('expiry_time');
+    if (expiryInput && !expiryInput.value) {
+        function toLocalDatetimeValue(d) {
+            const pad = n => String(n).padStart(2, '0');
+            return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+                 + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+        }
+        const now = new Date();
+        expiryInput.min = toLocalDatetimeValue(new Date(now.getTime() + 10 * 60000));
+        expiryInput.value = toLocalDatetimeValue(new Date(now.getTime() + 3 * 60 * 60000));
+    }
+
     const templateCards = document.querySelectorAll('.template-card');
     const titleInput = document.getElementById('title');
     const categorySelect = document.getElementById('category_id');

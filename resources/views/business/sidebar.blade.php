@@ -1,7 +1,7 @@
 @php
     $currentRoute = Route::currentRouteName();
 @endphp
-<div class="sidebar d-none d-md-block">
+<div class="sidebar">
     <div class="sidebar-section">Business Panel</div>
     <a href="{{ route('business.dashboard') }}" class="sidebar-link {{ $currentRoute == 'business.dashboard' ? 'active' : '' }}">
         <i class="fa fa-store me-2"></i> Dashboard

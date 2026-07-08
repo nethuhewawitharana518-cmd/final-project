@@ -346,6 +346,36 @@
     </div>
 </section>
 
+{{-- ─── CUSTOMER REVIEWS ────────────────────────────────── --}}
+@if(isset($recentReviews) && $recentReviews->isNotEmpty())
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <span class="section-badge">Community Voice</span>
+            <h2 class="section-title">What Our Customers Say</h2>
+        </div>
+        <div class="row g-4 justify-content-center">
+            @foreach($recentReviews as $review)
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm rounded-4 text-center p-4 hover-translate-y transition-all">
+                    <div class="mb-3 text-warning" style="font-size: 1.2rem;">
+                        @for($i=1; $i<=5; $i++)
+                            @if($i <= $review->rating) ⭐ @else <i class="fa fa-star text-muted" style="opacity: 0.3;"></i> @endif
+                        @endfor
+                    </div>
+                    <p class="text-dark small mb-3 flex-grow-1" style="font-style: italic; line-height: 1.6;">"{{ Str::limit($review->comment, 120) }}"</p>
+                    <div class="border-top pt-3 mt-auto">
+                        <div class="fw-bold text-dark small">{{ $review->customer->name ?? 'Anonymous Customer' }}</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">Ordered from <a href="{{ route('food.browse', ['business' => $review->business_id]) }}" class="text-success text-decoration-none fw-bold">{{ $review->business->business_name }}</a></div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
 {{-- ─── SUBSCRIPTION CTA ────────────────────────────────── --}}
 <section class="py-5 bg-white">
     <div class="container">

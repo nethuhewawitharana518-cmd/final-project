@@ -3,6 +3,18 @@
 @section('title', 'Register Business')
 @section('meta_description', 'Partner with FoodRescue. Register your restaurant, cafe, bakery, or hotel in Trincomalee to list surplus food.')
 
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+    #regMap { height: 280px; width: 100%; border-radius: 10px; border: 1.5px solid #dee2e6; }
+    #reg-map-status {
+        font-size: 0.78rem; margin-top: 6px; display: flex; align-items: center; gap: 6px;
+    }
+    #reg-map-status.pending  { color: #b45309; }
+    #reg-map-status.success  { color: #15803d; }
+</style>
+@endpush
+
 @section('content')
 <section class="py-5 bg-light-gradient min-vh-80 d-flex align-items-center">
     <div class="container">
@@ -73,11 +85,15 @@
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <label for="business_name" class="form-label text-dark small fw-semibold">Business Name</label>
-                                <input type="text" name="business_name" id="business_name" class="form-control @error('business_name') is-invalid @enderror" 
-                                    placeholder="Ranasinghe Hotels" value="{{ old('business_name') }}" required>
+                                <div class="position-relative">
+                                    <input type="text" name="business_name" id="business_name" class="form-control @error('business_name') is-invalid @enderror"
+                                        placeholder="Ranasinghe Hotels" value="{{ old('business_name') }}" required autocomplete="off">
+                                    <div id="business-name-suggestions" class="list-group position-absolute w-100 shadow-sm d-none" style="z-index:1000; top:100%;"></div>
+                                </div>
                                 @error('business_name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
+                                <div class="form-text small text-muted">If your business is already on the map, pick it below to auto-fill the address & location.</div>
                             </div>
                             <div class="col-md-6">
                                 <label for="business_type" class="form-label text-dark small fw-semibold">Business Type</label>
@@ -101,10 +117,20 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+                            <div class="col-12">
+                                <label class="form-label text-dark small fw-semibold mb-1">
+                                    Confirm Business Location on Map <span class="text-danger">*</span>
+                                </label>
+                                <div id="regMap"></div>
+                                <div id="reg-map-status" class="pending">
+                                    <i class="fa fa-circle-notch fa-spin"></i>
+                                    <span>Type your address above, tap directly on the map, or drag the pin — whichever finds your exact spot easiest.</span>
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <label for="reg_number" class="form-label text-dark small fw-semibold">Business Registration Number</label>
                                 <input type="text" name="reg_number" id="reg_number" class="form-control @error('reg_number') is-invalid @enderror" 
-                                    placeholder="BR-XXXXXX" value="{{ old('reg_number') }}" required>
+                                    placeholder="e.g. 123456" value="{{ old('reg_number') }}" required maxlength="6" pattern="\d{6}" title="Please enter exactly 6 numbers">
                                 @error('reg_number')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -139,9 +165,9 @@
                         </div>
 
                         <div class="form-check mb-4">
-                            <input class="form-check-input" type="checkbox" id="terms" required>
+                            <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
                             <label class="form-check-label text-muted small" for="terms">
-                                I confirm that all submitted documents and business details are valid, and I agree to the platform safety guidelines.
+                                I hereby certify that I have read and agree to the <a href="{{ route('terms') }}" target="_blank" class="text-success fw-semibold text-decoration-none">Terms and Conditions</a> and guarantee the safety of the food listed.
                             </label>
                         </div>
 
@@ -162,11 +188,19 @@
 @endsection
 
 @push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const ownerNameInput = document.getElementById('owner_name');
     const emailInput = document.getElementById('email');
     const phoneInput = document.getElementById('phone');
+    const regNumberInput = document.getElementById('reg_number');
+
+    if (regNumberInput) {
+        regNumberInput.addEventListener('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '').substring(0, 6);
+        });
+    }
 
     if (ownerNameInput) {
         const nameWarning = document.getElementById('name-warning');
@@ -223,41 +257,137 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Geocode address in browser to overcome backend referer restrictions
+    // ── Live Map: mandatory visual confirmation of the pinned business location ──
     const addressInput = document.getElementById('address');
     const latInput = document.getElementById('latitude');
     const lngInput = document.getElementById('longitude');
+    const mapStatus = document.getElementById('reg-map-status');
+
+    const DEFAULT_LAT = parseFloat(latInput.value) || 8.5755;
+    const DEFAULT_LNG = parseFloat(lngInput.value) || 81.2285;
+
+    const regMap = L.map('regMap').setView([DEFAULT_LAT, DEFAULT_LNG], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(regMap);
+
+    // Force Leaflet to size itself correctly (it's inside a card that may not
+    // have its final width yet on first paint)
+    setTimeout(() => regMap.invalidateSize(), 200);
+
+    const regMarker = L.marker([DEFAULT_LAT, DEFAULT_LNG], { draggable: true }).addTo(regMap);
+
+    function setMapStatus(state, text) {
+        if (!mapStatus) return;
+        mapStatus.className = state; // 'pending' | 'success'
+        mapStatus.innerHTML = `<i class="fa ${state === 'success' ? 'fa-circle-check' : 'fa-circle-notch fa-spin'}"></i><span>${text}</span>`;
+    }
+
+    function placePin(lat, lng, zoom) {
+        latInput.value = lat;
+        lngInput.value = lng;
+        regMarker.setLatLng([lat, lng]);
+        regMap.setView([lat, lng], zoom || 16);
+        setMapStatus('success', 'Pin set — drag it to fine-tune if needed, then submit.');
+    }
+
+    // Manual fine-tuning: dragging the marker overrides geocoding directly
+    regMarker.on('dragend', function (e) {
+        const pos = e.target.getLatLng();
+        latInput.value = pos.lat;
+        lngInput.value = pos.lng;
+        setMapStatus('success', 'Custom location set manually.');
+    });
+
+    // Click anywhere on the map to drop the pin there directly — for new/small
+    // businesses that free geocoding (and the local directory) won't know about,
+    // the owner can just tap their own location visually instead of typing.
+    regMap.on('click', function (e) {
+        placePin(e.latlng.lat, e.latlng.lng);
+        setMapStatus('success', 'Location set from map click — drag to fine-tune if needed.');
+    });
+
+    // ── Business-name autocomplete against the local Trincomalee directory ──
+    // (imported once from free OpenStreetMap data via `php artisan directory:import-trincomalee`)
+    // Selecting a suggestion fills the address AND drops the pin using real
+    // coordinates directly — no geocoding needed at all for known places.
+    const nameInput    = document.getElementById('business_name');
+    const suggestBox   = document.getElementById('business-name-suggestions');
+    const addressField = document.getElementById('address');
+
+    if (nameInput && suggestBox) {
+        let nameDebounce = null;
+
+        nameInput.addEventListener('input', function () {
+            if (nameDebounce) clearTimeout(nameDebounce);
+            const q = this.value.trim();
+            if (q.length < 2) { suggestBox.classList.add('d-none'); suggestBox.innerHTML = ''; return; }
+
+            nameDebounce = setTimeout(async function () {
+                try {
+                    const res  = await fetch('/api/directory/search?q=' + encodeURIComponent(q));
+                    const list = await res.json();
+
+                    if (!list || list.length === 0) {
+                        suggestBox.classList.add('d-none');
+                        suggestBox.innerHTML = '';
+                        return;
+                    }
+
+                    suggestBox.innerHTML = list.map(function (item, idx) {
+                        const addr = item.address ? item.address : 'Location on map (address not on file — please fill in above)';
+                        return '<button type="button" class="list-group-item list-group-item-action py-2" data-idx="' + idx + '">'
+                             + '<div class="fw-semibold small">' + item.name + ' <span class="text-muted fw-normal">(' + item.category + ')</span></div>'
+                             + '<div class="text-muted small">' + addr + '</div>'
+                             + '</button>';
+                    }).join('');
+                    suggestBox.classList.remove('d-none');
+
+                    suggestBox.querySelectorAll('button').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            const item = list[parseInt(this.dataset.idx, 10)];
+                            nameInput.value = item.name;
+                            if (item.address && addressField) addressField.value = item.address;
+                            placePin(item.latitude, item.longitude, 17);
+                            suggestBox.classList.add('d-none');
+                            suggestBox.innerHTML = '';
+                        });
+                    });
+                } catch (err) {
+                    console.warn('Directory search failed:', err);
+                }
+            }, 300);
+        });
+
+        // Hide suggestions when clicking elsewhere
+        document.addEventListener('click', function (e) {
+            if (!suggestBox.contains(e.target) && e.target !== nameInput) {
+                suggestBox.classList.add('d-none');
+            }
+        });
+    }
 
     if (addressInput && latInput && lngInput) {
         let debounceTimer = null;
         addressInput.addEventListener('input', function () {
             if (debounceTimer) clearTimeout(debounceTimer);
+            const addressText = addressInput.value.trim();
+            if (addressText.length < 3) return;
+
+            setMapStatus('pending', 'Looking up address on the map…');
+
             debounceTimer = setTimeout(async function () {
-                const addressText = addressInput.value.trim();
-                if (addressText.length < 3) return;
-                
-                var googleApiKey = "{{ env('GOOGLE_MAPS_API_KEY') }}";
                 var query = addressText;
                 if (!query.toLowerCase().includes("trincomalee")) query += ", Trincomalee";
                 if (!query.toLowerCase().includes("sri lanka")) query += ", Sri Lanka";
 
-                try {
-                    // Try Google Geocoding first
-                    var res = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${googleApiKey}`);
-                    var data = await res.json();
-                    if (data && data.status === 'OK' && data.results && data.results.length > 0) {
-                        var lat = data.results[0].geometry.location.lat;
-                        var lon = data.results[0].geometry.location.lng;
-                        latInput.value = lat;
-                        lngInput.value = lon;
-                        console.log(`Browser Business Signup Geocoding (Google): ${lat}, ${lon}`);
-                        return;
-                    }
-                } catch (e) {
-                    console.warn("Google business registration geocoding failed, trying OSM: ", e);
-                }
-
-                // Try OSM fallback
+                // NOTE: Google's REST Geocoding API (maps.googleapis.com/maps/api/geocode/json)
+                // does not send CORS headers, so a browser-side fetch() to it is always blocked
+                // and silently fails — that's why it looked "unreliable" before. Nominatim
+                // (OpenStreetMap) supports browser fetch directly and needs no API key, so we
+                // use it as the single source of truth here instead of a fetch call that can
+                // never actually succeed from client-side JS.
                 try {
                     var res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`, {
                         headers: { 'Accept-Language': 'en' }
@@ -266,14 +396,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (data && data.length > 0) {
                         var lat = parseFloat(data[0].lat);
                         var lon = parseFloat(data[0].lon);
-                        latInput.value = lat;
-                        lngInput.value = lon;
-                        console.log(`Browser Business Signup Geocoding (OSM): ${lat}, ${lon}`);
+                        placePin(lat, lon);
+                        console.log(`Geocoded (OSM): ${lat}, ${lon}`);
+                        return;
                     }
                 } catch (err) {
-                    console.warn("OSM fallback business registration geocoding failed: ", err);
+                    console.warn("OSM geocoding failed: ", err);
                 }
-            }, 1200);
+
+                setMapStatus('pending', 'Could not find that address automatically — please drag the pin to your exact location.');
+            }, 900);
         });
     }
 });

@@ -68,7 +68,7 @@
                                 <tr>
                                     <td class="fw-bold text-dark">{{ $comm->business->business_name ?? 'N/A' }}</td>
                                     <td><code>{{ $comm->reservation->reservation_code ?? 'N/A' }}</code></td>
-                                    <td>Rs. {{ number_format($comm->order_amount) }}</td>
+                                    <td>Rs. {{ number_format($comm->sale_amount) }}</td>
                                     <td class="text-danger fw-semibold">Rs. {{ number_format($comm->commission_amount) }}</td>
                                     <td class="text-success fw-bold">Rs. {{ number_format($comm->business_earnings) }}</td>
                                     <td>

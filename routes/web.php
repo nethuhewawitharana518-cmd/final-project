@@ -11,7 +11,9 @@ use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\CheckoutController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\LoyaltyController;
+use App\Http\Controllers\Customer\ReviewController;
 use App\Http\Controllers\Customer\ProfileController as CustomerProfile;
+use App\Http\Controllers\Customer\PickupRoutingController;
 use App\Http\Controllers\Customer\NotificationController as CustomerNotification;
 use App\Http\Controllers\Business\DashboardController as BusinessDashboard;
 use App\Http\Controllers\Business\SubscriptionController;
@@ -29,12 +31,14 @@ use App\Http\Controllers\Admin\RevenueController;
 use App\Http\Controllers\Admin\CommissionController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\DirectoryController;
 
 // ═══════════════════════════════════════════════════════════
 //  PUBLIC ROUTES
 // ═══════════════════════════════════════════════════════════
 Route::get('/',           [HomeController::class, 'index'])->name('home');
 Route::get('/about',      [HomeController::class, 'about'])->name('about');
+Route::view('/terms',     'public.terms')->name('terms');
 Route::get('/contact',    [HomeController::class, 'contact'])->name('contact');
 Route::post('/contact',   [HomeController::class, 'sendContact'])->name('contact.send');
 
@@ -111,6 +115,13 @@ Route::prefix('customer')->name('customer.')->middleware(['auth', 'role:customer
     Route::get('/orders/{id}/receipt',      [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
     Route::post('/orders/{id}/cancel',      [OrderController::class, 'cancel'])->name('orders.cancel');
 
+    // Reviews
+    Route::post('/reviews',                 [ReviewController::class, 'store'])->name('reviews.store');
+    Route::get('/orders/{id}/pickup-map',   [PickupRoutingController::class, 'show'])->name('orders.pickup-map');
+
+    // Nearest Shops API (Haversine)
+    Route::get('/nearest-shops',            [PickupRoutingController::class, 'findNearestShops'])->name('nearest-shops');
+
     // Loyalty
     Route::get('/loyalty',                  [LoyaltyController::class, 'index'])->name('loyalty');
     Route::post('/loyalty/redeem',          [LoyaltyController::class, 'redeem'])->name('loyalty.redeem');
@@ -119,6 +130,7 @@ Route::prefix('customer')->name('customer.')->middleware(['auth', 'role:customer
     Route::get('/notifications',            [CustomerNotification::class, 'index'])->name('notifications');
     Route::get('/notifications/unread-count',[CustomerNotification::class, 'unreadCount'])->name('notifications.unread-count');
     Route::post('/notifications/read-all',  [CustomerNotification::class, 'markAllRead'])->name('notifications.read-all');
+    Route::post('/notifications/clear-all', [CustomerNotification::class, 'clearAll'])->name('notifications.clear-all');
     Route::post('/notifications/{id}/read', [CustomerNotification::class, 'markRead'])->name('notifications.read');
 
     // Profile
@@ -220,6 +232,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 // ═══════════════════════════════════════════════════════════
 Route::get('/map',                  [HomeController::class, 'map'])->name('map');
 Route::get('/api/businesses/map',   [HomeController::class, 'businessesMapData'])->name('api.businesses.map');
+
+// Trincomalee business directory autocomplete (free, local OpenStreetMap data —
+// used on the business registration page). Must stay outside 'auth' so it
+// works before a business account exists.
+Route::get('/api/directory/search', [DirectoryController::class, 'search'])->name('directory.search');
 
 // ═══════════════════════════════════════════════════════════
 //  PAYMENT WEBHOOKS (No CSRF — must be excluded in VerifyCsrfToken)

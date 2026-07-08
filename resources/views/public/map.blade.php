@@ -186,7 +186,11 @@
 
 @section('content')
 @php
-    $merchants = \App\Models\Business::approved()->get();
+    // Uses $businesses passed from HomeController@map (already filtered to
+    // approved + pending, with coordinates, and active_deals_count loaded).
+    // Kept the $merchants variable name below so the rest of this file
+    // doesn't need to change.
+    $merchants = $businesses;
 @endphp
 <div class="map-page-wrapper">
     {{-- Top hero bar --}}
@@ -240,7 +244,7 @@
 @endsection
 
 @push('scripts')
-        <script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=geometry,places&callback=initMap" async defer></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps_key') }}&libraries=geometry,places&callback=initMap" async defer></script>
 
 <script>
 let map;

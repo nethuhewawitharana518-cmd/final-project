@@ -197,7 +197,7 @@
 @endsection
 
 @push('scripts')
-<script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=geometry,places"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps_key') }}&libraries=geometry,places"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const defaultLat = 8.5811;

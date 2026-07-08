@@ -3,6 +3,7 @@
 @section('title', 'Secure Checkout | Food Rescue Marketplace Trincomalee')
 
 @push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
 /* ── Fulfillment tabs ── */
 .pay-method-tab {
@@ -178,72 +179,99 @@
 
                 <input type="hidden" id="checkout_type" value="pickup">
 
-                {{-- ── AI Delivery Engine Panel (hidden until delivery selected) ── --}}
+                {{-- ── Delivery Engine Panel (hidden until delivery selected) ── --}}
                 <div id="delivery-engine-panel" class="mb-3 d-none">
                     <div class="d-flex align-items-center gap-2 mb-2">
                         <i class="fa-solid fa-route text-success"></i>
-                        <span class="fw-bold small text-dark">Delivery location mapping</span>
+                        <span class="fw-bold small text-dark">Delivery route map</span>
                     </div>
 
-                    {{-- Dynamic Metrics Info Box Overlay --}}
-                    <div class="p-3 mb-3 bg-light rounded-3 border d-flex justify-content-around text-center" style="border-color: var(--border) !important;">
-                        <div>
-                            <div class="text-muted small fw-semibold mb-1">📏 Distance</div>
-                            <div class="fs-6 fw-bold text-success" id="distance-display">-- km</div>
+                    {{-- Address input row --}}
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold small mb-1">
+                            <i class="fa fa-map-marker-alt me-1 text-primary"></i>Your Delivery Address
+                        </label>
+                        <div class="input-group">
+                            <textarea id="delivery_address" class="form-control form-control-sm" rows="2"
+                                      placeholder="Type your delivery address in Trincomalee…">{{ old('delivery_address', Auth::user()->home_address) }}</textarea>
+                            <button type="button" class="btn btn-outline-secondary px-2" title="Use my GPS location"
+                                    onclick="useGPSLocation()">
+                                <i class="fa fa-location-crosshairs"></i>
+                            </button>
                         </div>
-                        <div class="border-start animate-pulse" style="width: 1px; height: 40px; background-color: var(--border);"></div>
+                        <small class="text-muted" style="font-size:0.72rem;">
+                            Type address and press <strong>Enter</strong>, or click <i class="fa fa-location-crosshairs"></i> for GPS.
+                        </small>
+                    </div>
+
+                    {{-- Dynamic Metrics Row --}}
+                    <div class="p-2 mb-2 bg-light rounded-3 border d-flex justify-content-around text-center" style="border-color: var(--border) !important;">
                         <div>
-                            <div class="text-muted small fw-semibold mb-1">⏱️ Est. Travel Time</div>
-                            <div class="fs-6 fw-bold text-warning" id="hud-time-val">-- min</div>
+                            <div class="text-muted" style="font-size:0.72rem;font-weight:600;">📏 Distance</div>
+                            <div class="fw-bold text-success small" id="distance-display">-- km</div>
+                        </div>
+                        <div class="border-start" style="width:1px;height:36px;background:var(--border);"></div>
+                        <div>
+                            <div class="text-muted" style="font-size:0.72rem;font-weight:600;">⏱️ Est. Travel</div>
+                            <div class="fw-bold text-warning small" id="hud-time-val">-- min</div>
+                        </div>
+                        <div class="border-start" style="width:1px;height:36px;background:var(--border);"></div>
+                        <div>
+                            <div class="text-muted" style="font-size:0.72rem;font-weight:600;">💳 Delivery Fee</div>
+                            <div class="fw-bold text-dark small" id="delivery-fee-inline">Rs. --</div>
                         </div>
                     </div>
-                    
-                    {{-- Interactive Leaflet Map Wrapper with Geocoder HUD Search Overlay --}}
-                    <div class="position-relative mb-3">
-                        <div id="delivery-map" style="height: 300px; width: 100%; border-radius: 12px; border: 1.5px solid var(--border);" class="shadow-sm"></div>
-                        <div class="position-absolute top-0 start-0 m-2 p-2 bg-white rounded-3 shadow border" style="z-index: 1000; width: 280px; max-width: calc(100% - 16px);">
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text bg-light border-0"><i class="fa fa-magnifying-glass text-muted"></i></span>
-                                <input type="text" id="map-search-input" class="form-control border-0 bg-light text-dark small" placeholder="Search address or landmark..." style="font-size: 0.78rem; box-shadow: none;">
-                                <button type="button" class="btn btn-warning btn-sm rounded-end-3 text-white" onclick="triggerGeocodeSearch()"><i class="fa fa-location-arrow"></i></button>
+
+                    {{-- Map Container --}}
+                    <div class="position-relative mb-2">
+                        <div id="delivery-map" style="height:280px;width:100%;border-radius:10px;border:1.5px solid var(--border);" class="shadow-sm"></div>
+
+                        {{-- Map legend overlay --}}
+                        <div class="position-absolute bottom-0 start-0 m-2 p-2 bg-white rounded-3 shadow" style="z-index:999;font-size:0.72rem;border:1px solid #e5e7eb;">
+                            <div class="d-flex align-items-center gap-1 mb-1">
+                                <img src="http://maps.google.com/mapfiles/ms/icons/red-dot.png" style="width:14px;height:14px;object-fit:contain;"> <span>Restaurant</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-1">
+                                <img src="http://maps.google.com/mapfiles/ms/icons/blue-dot.png" style="width:14px;height:14px;object-fit:contain;"> <span>Your Address</span>
+                            </div>
+                        </div>
+
+                        {{-- Spinner overlay --}}
+                        <div id="delivery-map-overlay" class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center d-none"
+                             style="background:rgba(255,255,255,0.75);border-radius:10px;z-index:998;">
+                            <div class="text-center">
+                                <div class="spinner-border text-success mb-2" role="status"></div>
+                                <div class="small text-muted fw-semibold" id="overlay-msg">Locating address…</div>
                             </div>
                         </div>
                     </div>
-                    
-                    <hr class="my-0 mb-3">
-                    <div class="d-flex align-items-start gap-3">
-                        <div id="delivery-result-icon" style="font-size:1.4rem;">📍</div>
+
+                    <a id="open-google-maps-link" href="#" target="_blank" rel="noopener"
+                       class="btn btn-sm btn-outline-secondary d-none mb-2">
+                        <i class="fa fa-arrow-up-right-from-square me-1"></i> Open route in Google Maps
+                    </a>
+
+                    {{-- Status bar --}}
+                    <div class="d-flex align-items-start gap-2">
+                        <div id="delivery-result-icon" style="font-size:1.2rem;">📍</div>
                         <div class="flex-grow-1">
                             <div id="delivery-result-msg" class="small fw-semibold text-muted">
-                                Drag the blue marker to calculate distance and delivery fee...
+                                Type your address above, or tap/click directly on the map to set your exact delivery spot.
                             </div>
                             <div id="delivery-zone-badge" class="mt-1"></div>
                             <div id="delivery-fee-preview" class="mt-1 small fw-bold text-dark"></div>
                         </div>
-                        <div id="delivery-spinner"
-                             class="spinner-border spinner-border-sm text-success d-none"
-                             role="status"></div>
+                        <div id="delivery-spinner" class="spinner-border spinner-border-sm text-success d-none" role="status"></div>
                     </div>
                 </div>{{-- /engine panel --}}
 
-                {{-- ── Pickup / Delivery time ── --}}
-                <div class="mb-3">
-                    <label for="pickup_time" class="form-label fw-semibold small" id="time-label">
+                {{-- Pickup / Delivery time — required by the backend, was missing from the UI --}}
+                <div class="mt-3 pt-3 border-top">
+                    <label for="pickup_time" class="form-label fw-semibold text-dark small" id="time-label">
                         <i class="fa fa-calendar-days me-1 text-success"></i>Pickup Date &amp; Time
                     </label>
-                    <input type="datetime-local" id="pickup_time" class="form-control"
-                           value="{{ old('pickup_time', now()->addHours(1)->format('Y-m-d\TH:i')) }}" required>
-                    <small class="text-muted" id="time-help">Pick up within store operating hours.</small>
-                </div>
-
-                {{-- ── Delivery address (hidden until delivery selected) ── --}}
-                <div class="mb-1 d-none" id="delivery-address-container">
-                    <label for="delivery_address" class="form-label fw-semibold small">
-                        <i class="fa fa-map-marker-alt me-1 text-success"></i>Delivery Address
-                    </label>
-                    <textarea id="delivery_address" class="form-control" rows="3"
-                              placeholder="Enter your full street address in Trincomalee">{{ old('delivery_address', Auth::user()->home_address) }}</textarea>
-                    <small class="text-muted">Delivery within Trincomalee town limits only.</small>
+                    <input type="datetime-local" id="pickup_time" class="form-control" required>
+                    <div class="form-text small text-muted">Must be at least 15 minutes from now.</div>
                 </div>
 
             </div>{{-- /fulfillment card --}}
@@ -418,7 +446,7 @@
 @endsection
 
 @push('scripts')
-<script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=geometry,places"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://js.stripe.com/v3/"></script>
 <script>
 // Vendor Location
@@ -449,6 +477,10 @@ var stripeCard            = null;     // Stripe CardElement instance
 var _debounceTimer        = null;
 var customerLat           = null;
 var customerLng           = null;
+var deliveryMap           = null;   // Leaflet map instance for the delivery panel
+var vendorMarker          = null;
+var customerMarker        = null;
+var routeLine             = null;   // Leaflet polyline for the OSRM route
 
 // ═══════════════════════════════════════════════════════════════════
 //  STRIPE INIT  (runs immediately — Stripe.js is loaded above)
@@ -569,247 +601,264 @@ function applyLoyalty() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  FULFILLMENT TOGGLE  — the core fix
 // ═══════════════════════════════════════════════════════════════════
 //  FULFILLMENT TOGGLE  — the core fix
 // ═══════════════════════════════════════════════════════════════════
-var deliveryMap = null;
-var vendorMarker = null;
-var customerMarker = null;
-var directionsRenderer = null;
-var ignoreAddressInputEvent = false;
-
 function initDeliveryMap() {
-    if (deliveryMap) return;
+    var mapDiv = document.getElementById('delivery-map');
+    if (!mapDiv) return;
 
-    var centerLatLng = { lat: parseFloat(vendorLat), lng: parseFloat(vendorLng) };
-    deliveryMap = new google.maps.Map(document.getElementById('delivery-map'), {
-        center: centerLatLng,
-        zoom: 14,
-        styles: [
-            {
-                "featureType": "poi.business",
-                "elementType": "labels",
-                "stylers": [
-                    { "visibility": "off" }
-                ]
-            }
-        ]
-    });
+    if (!deliveryMap) {
+        deliveryMap = L.map(mapDiv).setView([vendorLat, vendorLng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(deliveryMap);
 
-    directionsRenderer = new google.maps.DirectionsRenderer({
-        map: deliveryMap,
-        suppressMarkers: true,
-        polylineOptions: {
-            strokeColor: '#059669',
-            strokeWeight: 5,
-            strokeOpacity: 0.75
+        vendorMarker = L.marker([vendorLat, vendorLng], {
+            icon: L.icon({
+                iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                iconSize: [25, 41], iconAnchor: [12, 41]
+            })
+        }).addTo(deliveryMap).bindPopup('🏪 ' + vendorName + ' — pickup point');
+
+        // Click anywhere on the map to drop/move the delivery pin there directly —
+        // this is faster than typing when the customer can recognise their own
+        // neighbourhood visually (free geocoding won't know every small lane).
+        deliveryMap.on('click', function (e) {
+            setupCustomerMarker(e.latlng.lat, e.latlng.lng);
+            setDeliveryStatus('ok', '📍', 'Location set from map click — drag the pin to adjust further.');
+        });
+
+        // If the vendor's own coordinates are still the platform-wide default
+        // (never geocoded correctly at registration time), try a one-time
+        // correction using their stored address text.
+        if (Math.abs(vendorLat - 8.5755) < 0.0001 && Math.abs(vendorLng - 81.2285) < 0.0001 && vendorAddress) {
+            geocodeVendorAddress(vendorAddress);
         }
-    });
-
-    vendorMarker = new google.maps.Marker({
-        position: centerLatLng,
-        map: deliveryMap,
-        title: vendorName,
-        icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
-    });
-
-    var isDefaultVendor = (vendorLat === 8.5755 && vendorLng === 81.2285);
-    if (isDefaultVendor && vendorAddress) {
-        geocodeVendorAddress(vendorAddress);
+    } else {
+        setTimeout(function () { deliveryMap.invalidateSize(); }, 50);
+        deliveryMap.setView([vendorLat, vendorLng], 13);
     }
 
     var addrTa = document.getElementById('delivery_address');
-    var initialAddr = addrTa ? addrTa.value.trim() : '';
-    if (initialAddr) {
-        setupCustomerMarker(vendorLat, vendorLng);
-        geocodeAddress(initialAddr);
-    } else if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            var pos = { lat: position.coords.latitude, lng: position.coords.longitude };
-            setupCustomerMarker(pos.lat, pos.lng);
-        }, function(error) {
-            console.warn("Geolocation access denied/failed, placing fallback customer pin.", error);
-            setupCustomerMarker(vendorLat, vendorLng);
-        }, { timeout: 4000, enableHighAccuracy: true });
-    } else {
-        setupCustomerMarker(vendorLat, vendorLng);
-    }
-
-    var searchInp = document.getElementById('map-search-input');
-    if (searchInp) {
-        // Initialize Google Places Autocomplete on the search input box
-        var autocomplete = new google.maps.places.Autocomplete(searchInp, {
-            fields: ["geometry", "formatted_address", "name"],
-            componentRestrictions: { country: "lk" } // Restrict to Sri Lanka
-        });
-
-        // Set bounds to bias suggestions towards the map's current viewport
-        if (deliveryMap) {
-            autocomplete.bindTo("bounds", deliveryMap);
-        }
-
-        autocomplete.addListener("place_changed", function() {
-            var place = autocomplete.getPlace();
-            if (!place.geometry || !place.geometry.location) {
-                console.warn("Autocomplete returned place with no geometry. Falling back to text search: " + searchInp.value);
-                geocodeAddress(searchInp.value);
-                return;
-            }
-
-            var lat = place.geometry.location.lat();
-            var lng = place.geometry.location.lng();
-            console.log("Places Autocomplete selection success: " + lat + ", " + lng);
-
-            var addrTa = document.getElementById('delivery_address');
-            if (addrTa) {
-                ignoreAddressInputEvent = true;
-                addrTa.value = place.formatted_address || place.name;
-                ignoreAddressInputEvent = false;
-            }
-
-            setupCustomerMarker(lat, lng);
-        });
-
-        searchInp.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                triggerGeocodeSearch();
-            }
-        });
-    }
-
     if (addrTa) {
-        addrTa.addEventListener('input', function(e) {
-            if (ignoreAddressInputEvent) return;
-            var val = e.target.value;
-            if (searchInp) searchInp.value = val;
-            debounceGeocode(val);
-        });
+        // If pre-filled, geocode after map tiles load
+        var existing = addrTa.value.trim();
+        if (existing.length > 3) {
+            setTimeout(function() { geocodeAddress(existing); }, 800);
+        }
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  GEOCODING (ADDRESS SEARCH) INTEGRATION
-// ═══════════════════════════════════════════════════════════════════
-function geocodeVendorAddress(addressText) {
-    var query = addressText.trim();
-    if (!query.toLowerCase().includes("trincomalee")) query += ", Trincomalee";
-    if (!query.toLowerCase().includes("sri lanka")) query += ", Sri Lanka";
+// ── GPS button ────────────────────────────────────────────────────────────────
+function useGPSLocation() {
+    if (!navigator.geolocation) { alert('Geolocation not supported.'); return; }
+    showMapOverlay('Detecting GPS location…');
+    navigator.geolocation.getCurrentPosition(
+        function(pos) {
+            var lat = pos.coords.latitude, lng = pos.coords.longitude;
+            setupCustomerMarker(lat, lng);
 
-    var geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ address: query }, function(results, status) {
-        if (status === 'OK' && results && results.length > 0) {
-            vendorLat = results[0].geometry.location.lat();
-            vendorLng = results[0].geometry.location.lng();
-            var pos = { lat: vendorLat, lng: vendorLng };
-            vendorMarker.setPosition(pos);
-            console.log(`Google Vendor Geocoding success: ${vendorLat}, ${vendorLng}`);
-            if (customerMarker) {
-                var bounds = new google.maps.LatLngBounds();
-                bounds.extend(vendorMarker.getPosition());
-                bounds.extend(customerMarker.getPosition());
-                deliveryMap.fitBounds(bounds);
+            // Reverse-geocode via Nominatim (free, no key) to fill the address box
+            fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng)
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    var ta = document.getElementById('delivery_address');
+                    if (ta && data && data.display_name) ta.value = data.display_name;
+                })
+                .catch(function(err) { console.warn('Reverse geocode failed:', err); });
+        },
+        function(err) {
+            hideMapOverlay();
+            // Only overwrite the status message if we don't already have a
+            // valid pin placed — otherwise a flaky retry shouldn't hide a
+            // result that already worked.
+            if (!customerMarker) {
+                var reasons = {
+                    1: 'Location permission denied. Please allow location access and try again.',
+                    2: 'Could not detect your location. Try moving near a window, or type your address.',
+                    3: 'GPS timed out — your signal may be weak indoors. Try again or type your address.',
+                };
+                setDeliveryStatus('error', '❌', reasons[err.code] || 'GPS failed. Please type your address.');
             }
-        }
-    });
+        },
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 }
+    );
 }
 
-async function geocodeAddress(addressText) {
-    if (!addressText || addressText.trim().length < 3) return;
+function showMapOverlay(msg) {
+    var ov = document.getElementById('delivery-map-overlay');
+    var lb = document.getElementById('overlay-msg');
+    if (ov) ov.classList.remove('d-none');
+    if (lb) lb.textContent = msg || 'Loading…';
+}
+function hideMapOverlay() {
+    var ov = document.getElementById('delivery-map-overlay');
+    if (ov) ov.classList.add('d-none');
+}
+function setDeliveryStatus(type, icon, msg) {
+    var ic = document.getElementById('delivery-result-icon');
+    var mg = document.getElementById('delivery-result-msg');
+    if (ic) ic.textContent = icon;
+    if (mg) mg.textContent = msg;
+}
 
+// ── Vendor address geocoder (only for default fallback coords) ────────────────
+function geocodeVendorAddress(addressText) {
+    var q = addressText.trim();
+    if (!q.toLowerCase().includes('trincomalee')) q += ', Trincomalee, Sri Lanka';
+
+    fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(q) + '&limit=1')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data && data.length > 0) {
+                vendorLat = parseFloat(data[0].lat);
+                vendorLng = parseFloat(data[0].lon);
+                if (vendorMarker) {
+                    vendorMarker.setLatLng([vendorLat, vendorLng]);
+                    deliveryMap.setView([vendorLat, vendorLng], deliveryMap.getZoom());
+                }
+            } else {
+                console.warn('Vendor geocode: no results for "' + q + '"');
+            }
+        })
+        .catch(function(err) { console.warn('Vendor geocode failed: ', err); });
+}
+
+// ── Customer delivery-address geocoder (typed / debounced) ────────────────────
+function geocodeAddress(addressText) {
     var query = addressText.trim();
-    if (!query.toLowerCase().includes("trincomalee")) query += ", Trincomalee";
-    if (!query.toLowerCase().includes("sri lanka")) query += ", Sri Lanka";
+    if (!query.toLowerCase().includes('trincomalee')) query += ', Trincomalee, Sri Lanka';
 
-    console.log(`Google Geocoding search: "${query}"`);
-    var geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ address: query }, function(results, status) {
-        if (status === 'OK' && results && results.length > 0) {
-            setupCustomerMarker(results[0].geometry.location.lat(), results[0].geometry.location.lng());
-        } else {
-            console.warn("Google Geocoding failed: " + status + ". Trying Nominatim fallback...");
-            tryNominatimGeocode(query, addressText);
-        }
-    });
+    showMapOverlay('Locating address…');
 
-    function tryNominatimGeocode(fullQuery, originalText) {
-        var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(fullQuery) + '&limit=1';
-        fetch(url, { headers: { 'User-Agent': 'FoodRescueApp/1.0' } })
+    var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(query) + '&limit=1';
+    fetch(url, { headers: { 'Accept-Language': 'en' } })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data && data.length > 0) {
+                console.log("Nominatim geocode success (full query): " + data[0].lat + ", " + data[0].lon);
+                setupCustomerMarker(parseFloat(data[0].lat), parseFloat(data[0].lon));
+            } else {
+                console.warn("Nominatim full query failed. Retrying without house number...");
+                var fallbackQuery = addressText.replace(/^(no[:\.\s]*)?\d+([\/\-]\d+)?\s*,?\s*/i, '').trim();
+                if (!fallbackQuery.toLowerCase().includes("trincomalee")) fallbackQuery += ", Trincomalee";
+                if (!fallbackQuery.toLowerCase().includes("sri lanka")) fallbackQuery += ", Sri Lanka";
+
+                var fallbackUrl = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(fallbackQuery) + '&limit=1';
+                fetch(fallbackUrl, { headers: { 'Accept-Language': 'en' } })
+                    .then(function(res) { return res.json(); })
+                    .then(function(fallbackData) {
+                        if (fallbackData && fallbackData.length > 0) {
+                            console.log("Nominatim geocode success (fallback query): " + fallbackData[0].lat + ", " + fallbackData[0].lon);
+                            setupCustomerMarker(parseFloat(fallbackData[0].lat), parseFloat(fallbackData[0].lon));
+                        } else {
+                            console.warn("Fallback query failed too. Trying broader area (last 2 segments)...");
+                            tryBroadAreaThenGiveUp();
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error("Nominatim fallback error:", err);
+                        tryBroadAreaThenGiveUp();
+                    });
+            }
+        })
+        .catch(function(err) {
+            console.error("Nominatim geocode error:", err);
+            tryBroadAreaThenGiveUp();
+        });
+
+    // Small streets/lanes are often missing from free OSM data in this area.
+    // Last resort: geocode just the broad area (e.g. "Abhayapura, Trincomalee")
+    // so the pin at least lands in the right neighbourhood, then let the
+    // customer drag it to the exact spot themselves.
+    function tryBroadAreaThenGiveUp() {
+        var parts = addressText.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+        var broadQuery = parts.slice(-2).join(', ');
+        if (!broadQuery || broadQuery.length < 3) { giveUp(); return; }
+        if (!broadQuery.toLowerCase().includes('trincomalee')) broadQuery += ', Trincomalee';
+        broadQuery += ', Sri Lanka';
+
+        fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(broadQuery) + '&limit=1',
+              { headers: { 'Accept-Language': 'en' } })
             .then(function(res) { return res.json(); })
-            .then(function(data) {
-                if (data && data.length > 0) {
-                    console.log("Nominatim geocode success (full query): " + data[0].lat + ", " + data[0].lon);
-                    setupCustomerMarker(parseFloat(data[0].lat), parseFloat(data[0].lon));
+            .then(function(broadData) {
+                if (broadData && broadData.length > 0) {
+                    console.log("Nominatim geocode success (broad area): " + broadData[0].lat + ", " + broadData[0].lon);
+                    setupCustomerMarker(parseFloat(broadData[0].lat), parseFloat(broadData[0].lon));
+                    setDeliveryStatus('ok', '📍', 'Pinned to the general area — drag the marker to your exact address.');
                 } else {
-                    console.warn("Nominatim full query failed. Retrying without house number...");
-                    var fallbackQuery = originalText.replace(/^(no[:\.\s]*)?\d+([\/\-]\d+)?\s*,?\s*/i, '').trim();
-                    if (!fallbackQuery.toLowerCase().includes("trincomalee")) fallbackQuery += ", Trincomalee";
-                    if (!fallbackQuery.toLowerCase().includes("sri lanka")) fallbackQuery += ", Sri Lanka";
-
-                    var fallbackUrl = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(fallbackQuery) + '&limit=1';
-                    fetch(fallbackUrl, { headers: { 'User-Agent': 'FoodRescueApp/1.0' } })
-                        .then(function(res) { return res.json(); })
-                        .then(function(fallbackData) {
-                            if (fallbackData && fallbackData.length > 0) {
-                                console.log("Nominatim geocode success (fallback query): " + fallbackData[0].lat + ", " + fallbackData[0].lon);
-                                setupCustomerMarker(parseFloat(fallbackData[0].lat), parseFloat(fallbackData[0].lon));
-                            } else {
-                                console.warn("All geocoding attempts failed.");
-                            }
-                        })
-                        .catch(function(err) { console.error("Nominatim fallback error:", err); });
+                    giveUp();
                 }
             })
-            .catch(function(err) {
-                console.error("Nominatim geocode error:", err);
-            });
+            .catch(function() { giveUp(); });
     }
-}
 
-var geocodeDebounceTimer = null;
-function debounceGeocode(val) {
-    clearTimeout(geocodeDebounceTimer);
-    geocodeDebounceTimer = setTimeout(function() {
-        geocodeAddress(val);
-    }, 1000);
-}
-
-function triggerGeocodeSearch() {
-    var searchInp = document.getElementById('map-search-input');
-    var val = searchInp ? searchInp.value.trim() : '';
-    if (val) {
-        var addrTa = document.getElementById('delivery_address');
-        if (addrTa) addrTa.value = val;
-        geocodeAddress(val);
+    function giveUp() {
+        console.warn("All geocoding attempts failed — dropping pin at vendor location as a starting point.");
+        hideMapOverlay();
+        // Drop a draggable pin near the vendor so the customer can position it
+        // themselves rather than being stuck with nothing on the map.
+        setupCustomerMarker(vendorLat, vendorLng);
+        setDeliveryStatus('error', '⚠️', "Couldn't find that address automatically — drag the blue pin to your exact location.");
     }
 }
 
 function setupCustomerMarker(lat, lng) {
-    var pos = { lat: parseFloat(lat), lng: parseFloat(lng) };
-    customerLat = pos.lat;
-    customerLng = pos.lng;
+    customerLat = parseFloat(lat);
+    customerLng = parseFloat(lng);
+
+    hideMapOverlay();
+
     if (customerMarker) {
-        customerMarker.setPosition(pos);
+        customerMarker.setLatLng([customerLat, customerLng]);
     } else {
-        customerMarker = new google.maps.Marker({
-            position: pos,
-            map: deliveryMap,
-            title: "Your Delivery Pin",
-            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
-            draggable: false
+        customerMarker = L.marker([customerLat, customerLng], {
+            draggable: true,
+            icon: L.icon({
+                iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                iconSize: [25, 41], iconAnchor: [12, 41]
+            })
+        }).addTo(deliveryMap).bindPopup('📦 Your delivery location — drag to fine-tune');
+
+        // Free geocoding (Nominatim) is sometimes imprecise for small streets —
+        // letting the customer drag the pin to the exact spot fixes that
+        // without depending on geocoding accuracy.
+        customerMarker.on('dragend', function (e) {
+            var pos = e.target.getLatLng();
+            customerLat = pos.lat;
+            customerLng = pos.lng;
+            setDeliveryStatus('ok', '📍', 'Custom location set — recalculating route and fee…');
+            calculateRouteDistance(customerLat, customerLng);
         });
     }
 
-    deliveryMap.setCenter(pos);
-    deliveryMap.setZoom(15);
+    setDeliveryStatus('ok', '📍', 'Delivery pin placed — calculating route and fee…');
 
-    var bounds = new google.maps.LatLngBounds();
-    if (vendorMarker) bounds.extend(vendorMarker.getPosition());
-    if (customerMarker) bounds.extend(customerMarker.getPosition());
-    if (vendorMarker && customerMarker) deliveryMap.fitBounds(bounds);
+    // "Open in Google Maps" — a plain link needs no API key or billing at all,
+    // unlike embedding the Google Maps JS API. This just opens the customer's
+    // own Google Maps app/site with turn-by-turn directions already filled in.
+    var gmapsLink = document.getElementById('open-google-maps-link');
+    if (gmapsLink) {
+        gmapsLink.href = 'https://www.google.com/maps/dir/?api=1'
+            + '&origin=' + vendorLat + ',' + vendorLng
+            + '&destination=' + customerLat + ',' + customerLng
+            + '&travelmode=driving';
+        gmapsLink.classList.remove('d-none');
+    }
 
-    calculateRouteDistance(lat, lng);
+    // Fit map to show both vendor + customer pins
+    if (vendorMarker) {
+        var bounds = L.latLngBounds([vendorMarker.getLatLng(), [customerLat, customerLng]]);
+        deliveryMap.fitBounds(bounds, { padding: [50, 50] });
+    } else {
+        deliveryMap.setView([customerLat, customerLng], 15);
+    }
+
+    calculateRouteDistance(customerLat, customerLng);
 }
 
 function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
@@ -823,80 +872,63 @@ function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
-// Calculate route using DirectionsService and DistanceMatrixService
+// Calculate route using OSRM (free, no key needed) — one call gives distance,
+// duration, and the route geometry to draw on the map.
 async function calculateRouteDistance(custLat, custLng) {
-    var origin = { lat: parseFloat(vendorLat), lng: parseFloat(vendorLng) };
-    var destination = { lat: parseFloat(custLat), lng: parseFloat(custLng) };
-
     var spinner = document.getElementById('delivery-spinner');
     if (spinner) spinner.classList.remove('d-none');
 
-    var directionsService = new google.maps.DirectionsService();
-    directionsService.route({
-        origin: origin,
-        destination: destination,
-        travelMode: google.maps.TravelMode.DRIVING
-    }, function(response, status) {
-        if (status === 'OK') {
-            directionsRenderer.setDirections(response);
-        } else {
-            console.warn("Google Directions route failed: " + status);
-        }
-    });
+    // OSRM expects coordinates as lng,lat (not lat,lng)
+    var url = 'https://router.project-osrm.org/route/v1/driving/'
+            + vendorLng + ',' + vendorLat + ';' + custLng + ',' + custLat
+            + '?overview=full&geometries=geojson';
 
-    var service = new google.maps.DistanceMatrixService();
-    service.getDistanceMatrix({
-        origins: [origin],
-        destinations: [destination],
-        travelMode: google.maps.TravelMode.DRIVING,
-        unitSystem: google.maps.UnitSystem.METRIC
-    }, function(response, status) {
+    try {
+        var res  = await fetch(url);
+        var data = await res.json();
+
         if (spinner) spinner.classList.add('d-none');
 
-        try {
-            if (status === 'OK' && 
-                response && 
-                response.rows && 
-                response.rows.length > 0 && 
-                response.rows[0].elements && 
-                response.rows[0].elements.length > 0 && 
-                response.rows[0].elements[0].status === 'OK') {
-                
-                var element = response.rows[0].elements[0];
-                var distanceValue = element.distance.value / 1000.0;
-                var durationValueMins = Math.round(element.duration.value / 60.0);
-
-                var timeEl = document.getElementById('hud-time-val');
-                if (timeEl) timeEl.textContent = durationValueMins + ' min';
-
-                var disp = document.getElementById('distance-display');
-                if (disp) disp.textContent = distanceValue.toFixed(2) + ' km';
-
-                checkDeliveryOptions(distanceValue);
-            } else {
-                console.warn("Google Distance Matrix failed or returned empty elements. Status: " + status);
-                runFallback();
-            }
-        } catch (e) {
-            console.error("Error in Google Distance Matrix callback: ", e);
-            runFallback();
-        }
-
-        function runFallback() {
-            var distanceKm = calculateHaversineDistance(vendorLat, vendorLng, custLat, custLng);
-            var durationMins = Math.round(distanceKm * 2 + 5);
+        if (data && data.code === 'Ok' && data.routes && data.routes.length > 0) {
+            var route         = data.routes[0];
+            var distanceValue = route.distance / 1000.0;          // km
+            var durationMins  = Math.round(route.duration / 60.0); // minutes
 
             var timeEl = document.getElementById('hud-time-val');
             if (timeEl) timeEl.textContent = durationMins + ' min';
 
             var disp = document.getElementById('distance-display');
-            if (disp) disp.textContent = distanceKm.toFixed(2) + ' km';
+            if (disp) disp.textContent = distanceValue.toFixed(2) + ' km';
 
-            checkDeliveryOptions(distanceKm);
+            // Draw the route line on the map
+            var coords = route.geometry.coordinates.map(function(c) { return [c[1], c[0]]; });
+            if (routeLine) deliveryMap.removeLayer(routeLine);
+            routeLine = L.polyline(coords, { color: '#059669', weight: 4, opacity: 0.8 }).addTo(deliveryMap);
+
+            checkDeliveryOptions(distanceValue);
+        } else {
+            console.warn("OSRM route failed. Response: ", data);
+            runFallback();
         }
-    });
-}
+    } catch (e) {
+        if (spinner) spinner.classList.add('d-none');
+        console.error("Error fetching OSRM route: ", e);
+        runFallback();
+    }
 
+    function runFallback() {
+        var distanceKm   = calculateHaversineDistance(vendorLat, vendorLng, custLat, custLng);
+        var durationMins = Math.round(distanceKm * 2 + 5); // rough estimate when OSRM is unreachable
+
+        var timeEl = document.getElementById('hud-time-val');
+        if (timeEl) timeEl.textContent = durationMins + ' min';
+
+        var disp = document.getElementById('distance-display');
+        if (disp) disp.textContent = distanceKm.toFixed(2) + ' km';
+
+        checkDeliveryOptions(distanceKm);
+    }
+}
 function toggleFulfillment(type) {
     isDelivery = (type === 'delivery');
 
@@ -956,6 +988,7 @@ async function checkDeliveryOptions(distanceKm) {
     var iconEl   = document.getElementById('delivery-result-icon');
     var badgeEl  = document.getElementById('delivery-zone-badge');
     var feeEl    = document.getElementById('delivery-fee-preview');
+    var feeHud   = document.getElementById('delivery-fee-inline');
     var tabDesc  = document.getElementById('delivery-tab-desc');
     var payBtn   = document.getElementById('pay-btn');
     var disp     = document.getElementById('distance-display');
@@ -991,6 +1024,7 @@ async function checkDeliveryOptions(distanceKm) {
             if (iconEl)  iconEl.textContent = '✅';
             if (msgEl)   msgEl.textContent  = data.message;
             if (feeEl)   feeEl.textContent  = 'Delivery fee: Rs. ' + Number(data.fee).toFixed(2);
+            if (feeHud)  feeHud.textContent = 'Rs. ' + Number(data.fee).toFixed(2);
             if (tabDesc) tabDesc.textContent = '+Rs. ' + Number(data.fee).toFixed(2) + ' delivery';
 
             var zoneClass = { base: 'zone-base', extended: 'zone-extended', far: 'zone-far', dynamic: 'zone-base' }[data.zone] || 'zone-base';
@@ -1008,6 +1042,7 @@ async function checkDeliveryOptions(distanceKm) {
             if (iconEl)  iconEl.textContent = data.reason === 'out_of_range' ? '🚫' : '⚠️';
             if (msgEl)   msgEl.textContent  = data.message;
             if (feeEl)   feeEl.textContent  = '';
+            if (feeHud)  feeHud.textContent = 'Rs. --';
             if (tabDesc) tabDesc.textContent = 'Not available';
 
             var label = data.reason === 'out_of_range' ? 'Out of Range' : 'Min. Order Not Met';
@@ -1153,6 +1188,39 @@ async function submitPayment() {
 }
 
 // ── Boot ──
+// Wire up the delivery-address textarea: typing (debounced) and pressing
+// Enter both trigger a geocode + map pin update. Previously these functions
+// existed but were never actually connected to the input.
+var deliveryAddrInput = document.getElementById('delivery_address');
+if (deliveryAddrInput) {
+    deliveryAddrInput.addEventListener('input', function () {
+        debounceGeocode(this.value);
+    });
+    deliveryAddrInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); // don't insert a newline in the textarea
+            clearTimeout(geocodeDebounceTimer);
+            triggerGeocodeSearch();
+        }
+    });
+}
+
+// Pickup/delivery time input — set a sensible minimum (15 mins from now) and
+// a default value (30 mins from now) since the browser won't do this for us.
+var pickupTimeInput = document.getElementById('pickup_time');
+if (pickupTimeInput) {
+    function toLocalDatetimeValue(d) {
+        var pad = function(n) { return String(n).padStart(2, '0'); };
+        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+             + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+    var now = new Date();
+    var minTime = new Date(now.getTime() + 15 * 60000);
+    var defaultTime = new Date(now.getTime() + 30 * 60000);
+    pickupTimeInput.min = toLocalDatetimeValue(minTime);
+    pickupTimeInput.value = toLocalDatetimeValue(defaultTime);
+}
+
 recalcTotal();
 </script>
 @endpush

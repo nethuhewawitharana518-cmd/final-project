@@ -22,7 +22,7 @@
 <body>
 
 <!-- ─── Navbar ─────────────────────────────────────────────── -->
-<nav class="navbar navbar-expand-lg navbar-light fr-navbar sticky-top">
+<nav class="navbar navbar-expand-lg navbar-dark fr-navbar sticky-top" data-bs-theme="dark">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center gap-2" href="{{ route('home') }}">
             <div class="brand-icon">🥗</div>
@@ -35,11 +35,11 @@
 
         <div class="collapse navbar-collapse" id="navMain">
             <ul class="navbar-nav me-auto gap-1">
-                <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('food.browse') }}">Browse Food</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('map') }}"><i class="fa fa-map-location-dot me-1"></i>Live Map</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('about') }}">About</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('contact') }}">Contact</a></li>
+                <li class="nav-item"><a class="nav-link {{ Route::currentRouteName() == 'home' ? 'active text-primary fw-semibold' : '' }}" href="{{ route('home') }}">Home</a></li>
+                <li class="nav-item"><a class="nav-link {{ Route::currentRouteName() == 'food.browse' || Route::currentRouteName() == 'food.detail' ? 'active text-primary fw-semibold' : '' }}" href="{{ route('food.browse') }}">Browse Food</a></li>
+                <li class="nav-item"><a class="nav-link {{ Route::currentRouteName() == 'map' ? 'active text-primary fw-semibold' : '' }}" href="{{ route('map') }}"><i class="fa fa-map-location-dot me-1"></i>Live Map</a></li>
+                <li class="nav-item"><a class="nav-link {{ Route::currentRouteName() == 'about' ? 'active text-primary fw-semibold' : '' }}" href="{{ route('about') }}">About</a></li>
+                <li class="nav-item"><a class="nav-link {{ Route::currentRouteName() == 'contact' ? 'active text-primary fw-semibold' : '' }}" href="{{ route('contact') }}">Contact</a></li>
             </ul>
 
             <ul class="navbar-nav gap-2 align-items-center">
@@ -60,7 +60,15 @@
                             </span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end notification-dropdown shadow">
-                            <li class="dropdown-header fw-semibold">Notifications</li>
+                            <li class="dropdown-header fw-semibold d-flex justify-content-between align-items-center">
+                                <span>Notifications</span>
+                                @if(auth()->user()->notifications()->count() > 0 && auth()->user()->isCustomer())
+                                    <form action="{{ route('customer.notifications.clear-all') }}" method="POST" class="m-0 p-0" onsubmit="return confirm('Clear all notifications?');">
+                                        @csrf
+                                        <button type="submit" class="btn btn-link text-muted p-0 text-decoration-none" title="Clear All" style="font-size: 0.85rem;"><i class="fa fa-trash-alt"></i></button>
+                                    </form>
+                                @endif
+                            </li>
                             @foreach(auth()->user()->notifications()->latest()->limit(5)->get() as $notif)
                                 <li>
                                     <a class="dropdown-item {{ $notif->is_read ? '' : 'fw-semibold' }}" href="{{ $notif->action_url ?: '#' }}">

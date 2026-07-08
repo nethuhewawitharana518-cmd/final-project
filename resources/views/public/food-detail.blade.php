@@ -199,6 +199,57 @@
         </div>
 
 
+        {{-- Customer Reviews --}}
+        <div class="row mt-5 pt-3 border-top">
+            <div class="col-12 d-flex align-items-center justify-content-between mb-4">
+                <h4 class="fw-bold text-dark mb-0">Vendor Reviews</h4>
+                <div class="text-warning fw-bold">
+                    @if($food->business->review_count > 0)
+                        ⭐ {{ number_format($food->business->average_rating, 1) }} / 5.0 
+                        <span class="text-muted small fw-normal">({{ $food->business->review_count }} Reviews)</span>
+                    @endif
+                </div>
+            </div>
+            <div class="col-12">
+                @php
+                    $reviews = $food->business->reviews()->with('customer')->latest()->take(10)->get();
+                @endphp
+                
+                @if($reviews->isEmpty())
+                    <div class="text-center py-4 bg-light rounded-3 shadow-sm border border-dashed">
+                        <i class="fa fa-comment-dots fa-2x text-muted mb-2 opacity-50"></i>
+                        <p class="text-muted small mb-0">No reviews yet for this vendor. Be the first to leave one after ordering!</p>
+                    </div>
+                @else
+                    <div class="d-flex flex-column gap-3">
+                        @foreach($reviews as $review)
+                            <div class="card border-0 shadow-sm rounded-4 bg-light">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-weight: bold; font-size: 0.9rem;">
+                                                {{ strtoupper(substr($review->customer->name ?? 'A', 0, 1)) }}
+                                            </div>
+                                            <div class="fw-bold text-dark">{{ $review->customer->name ?? 'Anonymous Customer' }}</div>
+                                        </div>
+                                        <div class="text-warning small">
+                                            @for($i=1; $i<=5; $i++)
+                                                @if($i <= $review->rating) ⭐ @else <i class="fa fa-star text-muted" style="opacity: 0.3;"></i> @endif
+                                            @endfor
+                                        </div>
+                                    </div>
+                                    @if($review->comment)
+                                        <p class="text-dark small mb-2 ms-5" style="line-height: 1.5; font-style: italic;">"{{ $review->comment }}"</p>
+                                    @endif
+                                    <div class="text-secondary ms-5" style="font-size: 0.7rem;"><i class="fa fa-clock me-1"></i>{{ $review->created_at->diffForHumans() }}</div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+
         {{-- Related Items --}}
         <div class="row mt-5 pt-3 border-top">
             <div class="col-12">
@@ -224,7 +275,7 @@
 
 @if($food->business->latitude && $food->business->longitude)
 @push('scripts')
-<script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=geometry,places&callback=initFoodMap" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps_key') }}&libraries=geometry,places&callback=initFoodMap" async defer></script>
 <script>
 function initFoodMap() {
     const lat  = {{ (float)($food->business->latitude ?? 8.5842) }};

@@ -9,12 +9,20 @@
     <div class="main-content flex-grow-1">
         <div class="page-header">
             <h4 class="page-title">Notifications</h4>
-            @if($notifications->where('is_read', false)->count() > 0)
-                <form action="{{ route('customer.notifications.read-all') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-success btn-sm px-3">Mark All as Read</button>
-                </form>
-            @endif
+            <div class="d-flex gap-2">
+                @if($notifications->where('is_read', false)->count() > 0)
+                    <form action="{{ route('customer.notifications.read-all') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-success btn-sm px-3">Mark All as Read</button>
+                    </form>
+                @endif
+                @if($notifications->count() > 0)
+                    <form action="{{ route('customer.notifications.clear-all') }}" method="POST" onsubmit="return confirm('Are you sure you want to clear all notifications?');">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-danger btn-sm px-3"><i class="fa fa-trash me-1"></i> Clear All</button>
+                    </form>
+                @endif
+            </div>
         </div>
 
         <div class="content-area">

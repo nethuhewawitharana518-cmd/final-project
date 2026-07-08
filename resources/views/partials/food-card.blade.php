@@ -32,10 +32,29 @@
             <span class="badge bg-light text-secondary text-uppercase font-monospace small px-2 py-1 border flex-shrink-0">
                 {{ $food->category->name ?? 'Other' }}
             </span>
-            <span class="food-biz-name m-0 text-truncate text-end" style="max-width: 150px; display: inline-block;" title="{{ $food->business->business_name ?? 'Partner' }}">
-                <i class="fa fa-store me-1 text-primary"></i>{{ $food->business->business_name ?? 'Partner' }}
-            </span>
+            <div class="d-flex align-items-center gap-1 text-end">
+                @if($food->business && $food->business->badge)
+                    <span class="badge rounded-circle shadow-sm px-2
+                        {{ $food->business->badge === '1st' ? 'bg-warning text-dark' : ($food->business->badge === '2nd' ? 'bg-secondary text-white' : 'bg-danger text-white') }}" 
+                        title="Top Rated: {{ $food->business->badge }} Place Vendor!" style="font-size: 0.75rem;">
+                        @if($food->business->badge === '1st') 🥇
+                        @elseif($food->business->badge === '2nd') 🥈
+                        @elseif($food->business->badge === '3rd') 🥉
+                        @endif
+                    </span>
+                @endif
+                <span class="food-biz-name m-0 text-truncate" style="max-width: 120px; display: inline-block;" title="{{ $food->business->business_name ?? 'Partner' }}">
+                    <i class="fa fa-store me-1 text-primary"></i>{{ $food->business->business_name ?? 'Partner' }}
+                </span>
+            </div>
         </div>
+
+        @if($food->business && $food->business->review_count > 0)
+            <div class="small text-warning mb-2" style="font-size: 0.8rem;">
+                ⭐ <span class="fw-bold">{{ number_format($food->business->average_rating, 1) }}</span> 
+                <span class="text-muted">({{ $food->business->review_count }} {{ Str::plural('review', $food->business->review_count) }})</span>
+            </div>
+        @endif
 
         {{-- Food Name --}}
         <h5 class="food-name limit-text-2">

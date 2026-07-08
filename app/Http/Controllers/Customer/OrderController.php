@@ -18,7 +18,7 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $status = $request->get('status', 'all');
-        $query = Auth::user()->reservations()->with(['business', 'items']);
+        $query = Auth::user()->reservations()->with(['business', 'items', 'review']);
 
         if ($status !== 'all') {
             $query->where('status', $status);

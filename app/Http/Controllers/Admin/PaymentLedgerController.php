@@ -68,7 +68,9 @@ class PaymentLedgerController extends Controller
             ->get();
 
         $csv = "Transaction ID,Reservation Code,Customer,Business,Amount (LKR),Card,Status,Date\n";
+        $totalAmount = 0;
         foreach ($payments as $p) {
+            $totalAmount += $p->amount;
             $csv .= implode(',', [
                 $p->transaction_id ?? 'N/A',
                 $p->reservation?->reservation_code ?? 'N/A',
@@ -80,6 +82,10 @@ class PaymentLedgerController extends Controller
                 $p->paid_at?->format('Y-m-d H:i:s') ?? 'N/A',
             ]) . "\n";
         }
+
+        $csv .= implode(',', [
+            '','','','TOTAL:', $totalAmount, '','',''
+        ]) . "\n";
 
         return response($csv, 200, [
             'Content-Type'        => 'text/csv',

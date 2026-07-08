@@ -22,7 +22,7 @@
 <body>
 
 <!-- ─── Navbar ─────────────────────────────────────────────── -->
-<nav class="navbar navbar-expand-lg navbar-light fr-navbar sticky-top">
+<nav class="navbar navbar-expand-lg navbar-dark fr-navbar sticky-top" data-bs-theme="dark">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center gap-2" href="<?php echo e(route('home')); ?>">
             <div class="brand-icon">🥗</div>
@@ -35,11 +35,11 @@
 
         <div class="collapse navbar-collapse" id="navMain">
             <ul class="navbar-nav me-auto gap-1">
-                <li class="nav-item"><a class="nav-link" href="<?php echo e(route('home')); ?>">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo e(route('food.browse')); ?>">Browse Food</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo e(route('map')); ?>"><i class="fa fa-map-location-dot me-1"></i>Live Map</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo e(route('about')); ?>">About</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo e(route('contact')); ?>">Contact</a></li>
+                <li class="nav-item"><a class="nav-link <?php echo e(Route::currentRouteName() == 'home' ? 'active text-primary fw-semibold' : ''); ?>" href="<?php echo e(route('home')); ?>">Home</a></li>
+                <li class="nav-item"><a class="nav-link <?php echo e(Route::currentRouteName() == 'food.browse' || Route::currentRouteName() == 'food.detail' ? 'active text-primary fw-semibold' : ''); ?>" href="<?php echo e(route('food.browse')); ?>">Browse Food</a></li>
+                <li class="nav-item"><a class="nav-link <?php echo e(Route::currentRouteName() == 'map' ? 'active text-primary fw-semibold' : ''); ?>" href="<?php echo e(route('map')); ?>"><i class="fa fa-map-location-dot me-1"></i>Live Map</a></li>
+                <li class="nav-item"><a class="nav-link <?php echo e(Route::currentRouteName() == 'about' ? 'active text-primary fw-semibold' : ''); ?>" href="<?php echo e(route('about')); ?>">About</a></li>
+                <li class="nav-item"><a class="nav-link <?php echo e(Route::currentRouteName() == 'contact' ? 'active text-primary fw-semibold' : ''); ?>" href="<?php echo e(route('contact')); ?>">Contact</a></li>
             </ul>
 
             <ul class="navbar-nav gap-2 align-items-center">
@@ -61,7 +61,15 @@
                             </span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end notification-dropdown shadow">
-                            <li class="dropdown-header fw-semibold">Notifications</li>
+                            <li class="dropdown-header fw-semibold d-flex justify-content-between align-items-center">
+                                <span>Notifications</span>
+                                <?php if(auth()->user()->notifications()->count() > 0 && auth()->user()->isCustomer()): ?>
+                                    <form action="<?php echo e(route('customer.notifications.clear-all')); ?>" method="POST" class="m-0 p-0" onsubmit="return confirm('Clear all notifications?');">
+                                        <?php echo csrf_field(); ?>
+                                        <button type="submit" class="btn btn-link text-muted p-0 text-decoration-none" title="Clear All" style="font-size: 0.85rem;"><i class="fa fa-trash-alt"></i></button>
+                                    </form>
+                                <?php endif; ?>
+                            </li>
                             <?php $__currentLoopData = auth()->user()->notifications()->latest()->limit(5)->get(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $notif): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <li>
                                     <a class="dropdown-item <?php echo e($notif->is_read ? '' : 'fw-semibold'); ?>" href="<?php echo e($notif->action_url ?: '#'); ?>">

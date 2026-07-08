@@ -238,6 +238,26 @@
         height: 100%;
     }
 
+    /* Animations */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .widget-card {
+        animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+    }
+    .grid-container > .widget-card:nth-child(1) { animation-delay: 0.05s; }
+    .grid-container > .widget-card:nth-child(2) { animation-delay: 0.15s; }
+    .grid-container > .widget-card:nth-child(3) { animation-delay: 0.25s; }
+    .grid-container > .widget-card:nth-child(4) { animation-delay: 0.35s; }
+    .grid-container > .widget-card:nth-child(5) { animation-delay: 0.45s; }
+    .grid-container > .widget-card:nth-child(6) { animation-delay: 0.55s; }
+    .grid-container > .widget-card:nth-child(7) { animation-delay: 0.65s; }
+    .grid-container > .widget-card:nth-child(8) { animation-delay: 0.75s; }
+    .grid-container > .widget-card:nth-child(9) { animation-delay: 0.85s; }
+    .grid-container > .widget-card:nth-child(10) { animation-delay: 0.95s; }
+    
     /* Responsive grid formatting */
     @media (max-width: 1024px) {
         .span-3, .span-4, .span-5, .span-6, .span-7, .span-8 {
@@ -649,3 +669,40 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Animate Conic Ring (Carbon Target - 75%)
+    const conicRing = document.querySelector('.conic-ring');
+    if (conicRing) {
+        animateRing(conicRing, 75, 'var(--dash-orange)');
+    }
+
+    // 2. Animate Mini Rings (User Split - 80% & 20%)
+    const miniRings = document.querySelectorAll('.mini-ring');
+    if (miniRings.length >= 2) {
+        animateRing(miniRings[0], 80, 'var(--dash-blue)');
+        animateRing(miniRings[1], 20, 'var(--dash-purple)');
+    }
+
+    function animateRing(el, target, color) {
+        let current = 0;
+        // Set initial state to 0% to override inline styles
+        el.style.background = `conic-gradient(${color} 0%, #2d2d2d 0)`;
+        
+        // Wait for card fade-in animation to finish before starting the fill
+        setTimeout(() => {
+            const interval = setInterval(() => {
+                current += Math.max(1, target / 40); // Increment step
+                if (current >= target) {
+                    current = target;
+                    clearInterval(interval);
+                }
+                el.style.background = `conic-gradient(${color} ${current}%, #2d2d2d 0)`;
+            }, 30); // 30ms per tick for smooth fill
+        }, 700);
+    }
+});
+</script>
+@endpush

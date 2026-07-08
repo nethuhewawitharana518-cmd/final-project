@@ -25,7 +25,14 @@ class HomeController extends Controller
             'businesses' => 48,
         ];
 
-        return view('public.home', compact('categories', 'expiringSoonFoods', 'featuredBusinesses', 'stats'));
+        $recentReviews = \App\Models\Review::with(['customer', 'business'])
+            ->where('rating', '>=', 4)
+            ->whereNotNull('comment')
+            ->latest()
+            ->take(4)
+            ->get();
+
+        return view('public.home', compact('categories', 'expiringSoonFoods', 'featuredBusinesses', 'stats', 'recentReviews'));
     }
 
     /**

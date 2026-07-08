@@ -33,6 +33,16 @@ class NotificationController extends Controller
     }
 
     /**
+     * Delete all notifications.
+     */
+    public function clearAll()
+    {
+        Auth::user()->notifications()->delete();
+
+        return back()->with('success', 'All notifications cleared.');
+    }
+
+    /**
      * Mark a single notification as read.
      */
     public function markRead($id)

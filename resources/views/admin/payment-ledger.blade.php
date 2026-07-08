@@ -44,6 +44,18 @@
         </div>
     </div>
 
+    {{-- Charts Row --}}
+    <div class="row mb-4">
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-3 p-3 h-100">
+                <h6 class="fw-bold mb-3 text-muted text-center">Payment Status Breakdown</h6>
+                <div style="position: relative; height: 250px;">
+                    <canvas id="paymentStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Filters --}}
     <div class="card border-0 shadow-sm rounded-3 p-3 mb-4">
         <form method="GET" class="row g-2 align-items-end">
@@ -167,3 +179,49 @@
 
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('paymentStatusChart');
+        if (ctx) {
+            new Chart(ctx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Successful', 'Pending', 'Failed'],
+                    datasets: [{
+                        data: [
+                            {{ $stats['total_count'] ?? 0 }},
+                            {{ $stats['pending_count'] ?? 0 }},
+                            {{ $stats['failed_count'] ?? 0 }}
+                        ],
+                        backgroundColor: [
+                            '#198754', // success
+                            '#ffc107', // pending
+                            '#dc3545'  // failed
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#a0aec0',
+                                padding: 20,
+                                font: { size: 12, family: "'Plus Jakarta Sans', sans-serif" }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+    });
+</script>
+@endpush

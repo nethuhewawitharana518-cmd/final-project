@@ -15,48 +15,51 @@
         <div class="content-area">
             {{-- KPI Summary Cards --}}
             <div class="row g-4 mb-5">
+                {{-- Active Orders Card --}}
                 <div class="col-md-3 col-sm-6">
-                    <div class="kpi-card">
-                        <div class="kpi-icon green">
+                    <div class="p-4 rounded-4 d-flex flex-column" style="background-color: #0c1421; border: 1px solid rgba(56, 189, 248, 0.1); height: 100%;">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-3 mb-3" style="width: 42px; height: 42px; background-color: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 1.15rem;">
                             <i class="fa fa-shopping-bag"></i>
                         </div>
-                        <div>
-                            <div class="kpi-value">{{ $activeOrdersCount }}</div>
-                            <div class="kpi-label">Active Orders</div>
-                        </div>
+                        <h3 class="fw-bold text-white mb-1">{{ $activeOrdersCount }}</h3>
+                        <div class="text-white-50 small mb-4">active orders</div>
+                        <div class="small fw-semibold mt-auto" style="color: #38bdf8;">ongoing / current</div>
                     </div>
                 </div>
+
+                {{-- Eco / Sustainable Card --}}
                 <div class="col-md-3 col-sm-6">
-                    <div class="kpi-card">
-                        <div class="kpi-icon amber">
-                            <i class="fa fa-hand-holding-usd"></i>
-                        </div>
-                        <div>
-                            <div class="kpi-value">Rs. {{ number_format($savedAmount) }}</div>
-                            <div class="kpi-label">Total Saved</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="kpi-card">
-                        <div class="kpi-icon blue">
-                            <i class="fa fa-star"></i>
-                        </div>
-                        <div>
-                            <div class="kpi-value">{{ $loyaltyPoints }}</div>
-                            <div class="kpi-label">Loyalty Points</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="kpi-card">
-                        <div class="kpi-icon red">
+                    <div class="p-4 rounded-4 d-flex flex-column" style="background-color: #0d1a15; border: 1px solid rgba(74, 222, 128, 0.1); height: 100%;">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-3 mb-3" style="width: 42px; height: 42px; background-color: rgba(74, 222, 128, 0.15); color: #4ade80; font-size: 1.15rem;">
                             <i class="fa fa-leaf"></i>
                         </div>
-                        <div>
-                            <div class="kpi-value">{{ number_format($co2Saved, 1) }} kg</div>
-                            <div class="kpi-label">CO₂ Offset</div>
+                        <h3 class="fw-bold text-white mb-1">{{ number_format($co2Saved, 1) }} kg</h3>
+                        <div class="text-white-50 small mb-4">CO₂ offset</div>
+                        <div class="small fw-semibold mt-auto" style="color: #4ade80;">eco / sustainable</div>
+                    </div>
+                </div>
+
+                {{-- Loyalty / Premium Card --}}
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-4 rounded-4 d-flex flex-column" style="background-color: #0b1121; border: 1px solid rgba(250, 204, 21, 0.1); height: 100%;">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-3 mb-3" style="width: 42px; height: 42px; background-color: rgba(250, 204, 21, 0.15); color: #facc15; font-size: 1.15rem;">
+                            <i class="fa fa-star"></i>
                         </div>
+                        <h3 class="fw-bold text-white mb-1">{{ $loyaltyPoints }}</h3>
+                        <div class="text-white-50 small mb-4">loyalty points</div>
+                        <div class="small fw-semibold mt-auto" style="color: #facc15;">navy / premium</div>
+                    </div>
+                </div>
+
+                {{-- Savings / Playful Card --}}
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-4 rounded-4 d-flex flex-column" style="background-color: #1a0f14; border: 1px solid rgba(251, 113, 133, 0.1); height: 100%;">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-3 mb-3" style="width: 42px; height: 42px; background-color: rgba(251, 113, 133, 0.15); color: #fb7185; font-size: 1.15rem;">
+                            <i class="fa fa-hand-rock"></i>
+                        </div>
+                        <h3 class="fw-bold text-white mb-1">Rs. {{ number_format($savedAmount) }}</h3>
+                        <div class="text-white-50 small mb-4">total saved</div>
+                        <div class="small fw-semibold mt-auto" style="color: #fb7185;">plum / playful</div>
                     </div>
                 </div>
             </div>

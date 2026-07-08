@@ -41,7 +41,7 @@
                                 @forelse($subscriptions as $sub)
                                 <tr>
                                     <td class="fw-bold text-dark">{{ $sub->business->business_name ?? 'N/A' }}</td>
-                                    <td><span class="badge bg-primary">{{ ucfirst($sub->plan_name) }}</span></td>
+                                    <td><span class="badge bg-primary">{{ ucfirst($sub->plan_type) }}</span></td>
                                     <td>{{ $sub->start_date->format('M d, Y') }}</td>
                                     <td>{{ $sub->end_date->format('M d, Y') }}</td>
                                     <td>{{ $sub->upload_limit === -1 ? 'Unlimited' : $sub->upload_limit }} uploads</td>

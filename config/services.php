@@ -37,5 +37,5 @@ return [
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
         'currency'       => env('STRIPE_CURRENCY', 'lkr'),
     ],
-
+'google_maps_key' => env('GOOGLE_MAPS_API_KEY'),
 ];
