@@ -345,6 +345,21 @@
                            autocomplete="cc-name" required>
                 </div>
 
+                {{-- Strict Location Delivery Agreement (Only visible/relevant for Delivery) --}}
+                <div class="mb-4 p-3 border rounded border-warning bg-light delivery-agreement-box" id="delivery-agreement-container" style="display: none;">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="location-agreement" required>
+                        <label class="form-check-label small fw-semibold" for="location-agreement">
+                            <span class="d-block text-danger mb-1">
+                                <i class="fa fa-exclamation-triangle"></i> Required Agreement / අනිවාර්ය එකඟතාවය / கட்டாய ஒப்பந்தம்
+                            </span>
+                            <span class="d-block mb-1 text-muted"><strong>EN:</strong> I agree that delivery will only be made to the exact pinned map location. Changing the location later may result in order cancellation without a refund.</span>
+                            <span class="d-block mb-1 text-muted"><strong>SI:</strong> බෙදා හැරීම සිතියමේ පෙන්වා ඇති නිශ්චිත ස්ථානයට පමණක් සිදු කරන බවට මම එකඟ වෙමි. පසුව ස්ථානය වෙනස් කිරීමෙන් මුදල් ආපසු නොගෙවා ඇණවුම අවලංගු වීමට ඉඩ ඇත.</span>
+                            <span class="d-block text-muted"><strong>TA:</strong> வரைபடத்தில் காட்டப்பட்டுள்ள சரியான இடத்திற்கு மட்டுமே டெலிவரி செய்யப்படும் என்பதை நான் ஏற்கிறேன். பின்னர் இருப்பிடத்தை மாற்றுவது பணம் திரும்பப் பெறாமல் ஆர்டரை ரத்து செய்யலாம்.</span>
+                        </label>
+                    </div>
+                </div>
+
                 {{-- Pay button --}}
                 <button id="pay-btn" type="button"
                         class="btn btn-success w-100 py-3 rounded-pill shadow-lg fw-bold"
@@ -951,6 +966,16 @@ function toggleFulfillment(type) {
     var addrBox = document.getElementById('delivery-address-container');
     if (addrBox) addrBox.classList.toggle('d-none', !isDelivery);
 
+    // Show / hide delivery agreement checkbox
+    var agreeBox = document.getElementById('delivery-agreement-container');
+    if (agreeBox) {
+        if (isDelivery) {
+            agreeBox.style.display = 'block';
+        } else {
+            agreeBox.style.display = 'none';
+        }
+    }
+
     // Update time label text
     var timeLabel = document.getElementById('time-label');
     if (timeLabel) timeLabel.innerHTML = isDelivery
@@ -1098,9 +1123,18 @@ async function submitPayment() {
     var addrEl       = document.getElementById('delivery_address');
     var deliveryAddr = addrEl ? addrEl.value.trim() : '';
     if (isDelivery && !deliveryAddr) {
-        showAlert('Please enter your delivery address.');
+        showAlert('Please provide a delivery address.');
         if (addrEl) addrEl.focus();
         return;
+    }
+
+    // ── Guard: Location Agreement (Delivery Only) ──
+    if (isDelivery) {
+        var agreeEl = document.getElementById('location-agreement');
+        if (agreeEl && !agreeEl.checked) {
+            showAlert('You must agree to the delivery location terms (check the box) before proceeding.');
+            return;
+        }
     }
 
     // ── Guard: Stripe must be loaded ──

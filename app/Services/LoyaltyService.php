@@ -8,8 +8,8 @@ use App\Models\User;
 
 class LoyaltyService
 {
-    /** Points earned per Rs.100 spent */
-    const POINTS_PER_100 = 1;
+    /** Points earned per Rs.500 spent */
+    const POINTS_PER_500 = 1;
 
     /** Redemption: Rs. per point */
     const VALUE_PER_POINT = 1.00;
@@ -19,7 +19,7 @@ class LoyaltyService
      */
     public function award(Reservation $reservation): LoyaltyPoint
     {
-        $pointsEarned = (int) floor($reservation->total_amount / 100) * self::POINTS_PER_100;
+        $pointsEarned = (int) floor($reservation->total_amount / 500) * self::POINTS_PER_500;
         $currentTotal = $this->getBalance($reservation->customer_id);
         $newBalance   = $currentTotal + $pointsEarned;
 

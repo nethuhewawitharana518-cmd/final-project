@@ -43,6 +43,20 @@
                     <p class="text-muted small mb-0 mt-1"><i class="fa-solid fa-qrcode text-success me-1"></i>Present this QR Code to the {{ $isDelivery ? 'delivery rider' : 'store merchant' }} to verify order fulfillment.</p>
                 </div>
 
+                @if($isDelivery)
+                <div class="alert alert-warning border border-warning p-3 mb-4 rounded" style="background: rgba(255, 193, 7, 0.1);">
+                    <div class="d-flex">
+                        <i class="fa fa-exclamation-triangle text-warning fa-2x me-3 mt-1"></i>
+                        <div>
+                            <h6 class="fw-bold text-warning mb-1">STRICT LOCATION POLICY</h6>
+                            <p class="mb-1 text-muted small"><strong>EN:</strong> Delivery is strictly limited to the exact pinned location on this receipt. Changing this location may lead to order cancellation without a refund.</p>
+                            <p class="mb-1 text-muted small"><strong>SI:</strong> බෙදා හැරීම සිතියමේ පෙන්වා ඇති ස්ථානයට පමණක් සිදු කෙරේ. පසුව ස්ථානය වෙනස් කිරීමෙන් මුදල් ආපසු නොගෙවා ඇණවුම අවලංගු වීමට ඉඩ ඇත.</p>
+                            <p class="mb-0 text-muted small"><strong>TA:</strong> வரைபடத்தில் காட்டப்பட்டுள்ள சரியான இடத்திற்கு மட்டுமே டெலிவரி செய்யப்படும். பின்னர் இருப்பிடத்தை மாற்றுவது பணம் திரும்பப் பெறாமல் ஆர்டரை ரத்து செய்யலாம்.</p>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
                 {{-- Dotted Cut-Out Divider --}}
                 <div class="receipt-dashed-divider"></div>
 

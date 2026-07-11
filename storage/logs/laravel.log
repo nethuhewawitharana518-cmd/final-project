@@ -9737,3 +9737,17 @@
 [2026-07-08 12:17:30] local.INFO: Delivery fee calculated {"user_id":5,"distance_km":2.6832,"fee":234.66,"zone":"dynamic","cart_total":1750.0} 
 [2026-07-08 12:18:02] local.ERROR: Stripe createPaymentIntent failed {"message":"Invalid API Key provided: sk_test_**********************************************************************************************7pCh","code":null} 
 [2026-07-08 12:18:02] local.INFO: Stripe API failed or keys are invalid. Falling back to local mock payment intent.  
+[2026-07-09 14:14:11] local.WARNING: AI Service unavailable: cURL error 7: Failed to connect to 127.0.0.1 port 5000 after 2038 ms: Couldn't connect to server (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for http://127.0.0.1:5000/ai/expiry-risk  
+[2026-07-09 14:14:13] local.WARNING: AI Service unavailable: cURL error 7: Failed to connect to 127.0.0.1 port 5000 after 2041 ms: Couldn't connect to server (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for http://127.0.0.1:5000/ai/discount-recommend  
+[2026-07-09 14:15:04] local.ERROR: Maximum execution time of 60 seconds exceeded {"userId":12,"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Maximum execution time of 60 seconds exceeded at D:/projectn_dark/vendor/symfony/mailer/Transport/Smtp/Stream/AbstractStream.php:82)
+[stacktrace]
+#0 {main}
+"} 
+[2026-07-09 14:15:16] local.WARNING: AI Service unavailable: cURL error 7: Failed to connect to 127.0.0.1 port 5000 after 2026 ms: Couldn't connect to server (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for http://127.0.0.1:5000/ai/expiry-risk  
+[2026-07-09 14:15:19] local.WARNING: AI Service unavailable: cURL error 7: Failed to connect to 127.0.0.1 port 5000 after 2040 ms: Couldn't connect to server (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for http://127.0.0.1:5000/ai/discount-recommend  
+[2026-07-10 00:21:22] local.WARNING: AI Service unavailable: cURL error 7: Failed to connect to 127.0.0.1 port 5000 after 2025 ms: Couldn't connect to server (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for http://127.0.0.1:5000/ai/expiry-risk  
+[2026-07-10 00:21:24] local.WARNING: AI Service unavailable: cURL error 7: Failed to connect to 127.0.0.1 port 5000 after 2018 ms: Couldn't connect to server (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for http://127.0.0.1:5000/ai/discount-recommend  
+[2026-07-10 00:24:02] local.INFO: Delivery fee calculated {"user_id":5,"distance_km":0.9805,"fee":100.0,"zone":"dynamic","cart_total":1200.0} 
+[2026-07-10 00:24:30] local.INFO: Delivery fee calculated {"user_id":5,"distance_km":0.091,"fee":100.0,"zone":"dynamic","cart_total":1200.0} 
+[2026-07-10 00:26:29] local.ERROR: Stripe createPaymentIntent failed {"message":"Invalid API Key provided: sk_test_**********************************************************************************************7pCh","code":null} 
+[2026-07-10 00:26:29] local.INFO: Stripe API failed or keys are invalid. Falling back to local mock payment intent.  
